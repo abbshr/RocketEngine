@@ -11,7 +11,7 @@ a Framework of super light weight implement WebSocket Protocol, used in project 
 ##### repo states
 
 now in v0.0.1, implement websocket server  
-TODO: ws client, implement the whole websocket protocol descript in RFC 7455
+TODO: ws client, implement the whole websocket protocol descript in RFC 6455
 
 ##### Usage
 
