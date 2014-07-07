@@ -1,4 +1,4 @@
 
-exports.encodeFrame = require('./encode.js');
-exports.decodeFrame = require('./decode.js');
+exports.encodeFrame = require('./utils/encode.js');
+exports.decodeFrame = require('./utils/decode.js');
 exports.Client     = require('./client.js');

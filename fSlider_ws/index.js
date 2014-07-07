@@ -188,6 +188,7 @@ function data_handler(client, buffer, data) {
 
     // TODO: handle the JSON obj include readable frame and raw rest frame
     // readable_data.frame
+    // don't forget to emit custom event here
 
     // the rest frame data
     buffer.frame = readable_data.remain_frame;
