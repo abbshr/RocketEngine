@@ -49,7 +49,7 @@ a simple client:
     };
 ```
 
-Options:
+Server Options:
 
 ```
     var options = {
@@ -63,17 +63,43 @@ Options:
 Other usages:
 
 ```
-ws.bind();
+    ws.bind();
 
-ws.unbind();
+    ws.unbind();
 
-ws.connect();
+    ws.connect();
 
-client.emit();
+    client.emit();
 
-ws.emit();
+    client.setTimeOut();
 
-ws.on();
+    ws.broadcast();
 
-ws.removeListener();
+    ws.emit();
+
+    ws.on();
+
+    ws.removeListener();
+```
+
+##### System Level Events
+these events' name are important and shouldn't be overwrited or conflict in application
+```
+    
+    'listen' 
+        @httpServer: new http.Server()
+    'uptolimit' 
+        @limit: new wsf.Server().MAX
+    'disconnected' 
+        @client: new Client()
+    'closing' 
+        @data: new Buffer()
+    'drained' 
+        @bufferSize: socket.bufferSize
+    'timeout'
+        (none)
+    'exception' 
+        @err: new Error()
+    'connected' 
+        @client: new Client()
 ```
