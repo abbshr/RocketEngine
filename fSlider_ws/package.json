@@ -4,8 +4,7 @@
   "description": "light weight websocket framework for fSlider",
   "main": "index.js",
   "scripts": {
-    "test": "",
-    "install-client": ""
+    "test": ""
   },
   "repository": {
     "type": "git",

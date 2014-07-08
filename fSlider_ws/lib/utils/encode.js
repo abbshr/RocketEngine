@@ -1,5 +1,8 @@
 
-// @frame: a JSON obj as readable_data resolved by decoder
+/*
+* @frame<JSON>: a JSON object as readable_data resolved by decoder
+* return: frame<Buffer>
+*/
 module.exports = function (frame) {
 
   // for control bit: FIN, Opcode, MASK, Payload_len

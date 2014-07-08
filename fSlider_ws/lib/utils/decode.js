@@ -1,5 +1,8 @@
 
-// @frame: raw buffer data
+/*
+* @frame<Buffer>: raw buffer data
+* return: { frame<JSON>, remain_frame<Buffer> } 
+*/
 module.exports = function (frame) {
 
   // if the frame is not include FIN, Opcode, MASK, Payload_len intergrally
