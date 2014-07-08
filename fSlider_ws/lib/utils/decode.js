@@ -11,6 +11,10 @@ module.exports = function (frame) {
   
   // cursor
   var counter = 0;
+
+  // to buffer the Payload_data
+  var buffer = null;
+  var Masking_key;
   
   var fin_offset = 7,
     opcode_offset = parseInt(1111, 2),
@@ -41,11 +45,11 @@ module.exports = function (frame) {
   (counter += 8);
   
   // create a buffer size of Payload_len
-  var buffer = new Buffer(Payload_len);
+  buffer = new Buffer(Payload_len);
 
   if (MASK) {
     // get mask key
-    var Masking_key = frame.slice(counter, counter + 4);
+    Masking_key = frame.slice(counter, counter + 4);
 
     // skip to payload first index
     counter += 4;
