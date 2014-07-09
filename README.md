@@ -31,12 +31,12 @@ create a websocket server:
       socket.setTimeout(0);
       ws.on('win', function(data) { 
         console.log(data);
-        socket.emit('data', data);
+        socket.send(data);
       });
       ws.on('closing', function () {
         console.log('client close the connection');
       });
-      ws.on('message', function(data) {
+      ws.recive(function(data) {
         console.log(data);
         socket.emit('gamewin', data);
       });
@@ -61,7 +61,7 @@ as client:
             console.log('lose connection', e);
           })          
           // press testing
-          socket.on('data', function (data) {
+          socket.recive(function (data) {
             var str = [];
             console.log(data);
             for (var i = 0; i < 1800000; i++) {
@@ -100,6 +100,7 @@ Server Options:
 Other usages:
 
 ```
+
     ws.bind();
 
     ws.unbind();
@@ -114,7 +115,11 @@ Other usages:
 
     client.close();
 
+    client.send();
+
     ws.broadcast();
+
+    ws.recive();
 
     ws.emit();
 
