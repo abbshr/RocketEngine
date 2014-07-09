@@ -134,6 +134,7 @@ wsf.Server.prototype.broadcast = function (e, data) {
 /* this has been binded to Server instance */
 /* argument @req has been pre-setted */
 function upgrade_handler(req, socket) {
+
   // ref to server
   var server = this;
 
@@ -147,11 +148,13 @@ function upgrade_handler(req, socket) {
   };
 
   // up to limit, throw exception
-  if (server.sockets.length + 1 > server.MAX) 
+  if (server.sockets.length + 1 > server.MAX) {
     server.emit('uptolimit', server.MAX);
     return new Error('can not handle this request, socket has been up to the MAX number');
+  }
 
   // if the request page URL not match, reject the request
+
   if (req.url !== server.namespace) 
     return;
 
@@ -167,7 +170,7 @@ function upgrade_handler(req, socket) {
     'Sec-WebSocket-Accept: ' + resKey
   ]).concat('', '').join('\r\n');
 
-  socket.setEncoding('utf8');
+  //socket.setEncoding('utf8');
   // on any data incomming
   socket.on('data', data_handler.bind(server, client, buffer));
 
@@ -223,7 +226,7 @@ function upgrade_handler(req, socket) {
 /* this has been binded to Server instance */
 /* arguments @client and @buffer has been pre-setted */
 function data_handler(client, buffer, data) {
-  var readable_data, payload_data, event, rawdata;
+  var readable_data, payload_data, event, rawdata, dataType;
 
   // concat the buffer with last time resolved frame
   // because sometimes a lot of 'data' event may be triggered in one time,
@@ -234,7 +237,7 @@ function data_handler(client, buffer, data) {
   // the "while loop" to get all right data remain in buffer
   while (readable_data = decodeFrame(buffer.frame)) {
     // translate raw Payload_data to string
-    payload_data = readable_data['Payload_data'].toString();
+    payload_data = readable_data['frame']['Payload_data'].toString();
     // if payload_data format is not standard, JSON.parse will throw an error
     try {
       payload_data = JSON.parse(payload_data);
@@ -243,12 +246,17 @@ function data_handler(client, buffer, data) {
       console.log(e);
     }
     event = payload_data.hasOwnProperty('event') ? payload_data['event'] : new Error('Payload_data translate error');
-    rawdata = payload_data.hasOwnProperty('data') ? new Buffer(payload_data['data']) : new Error('Payload_data translate error');
+    rawdata = payload_data.hasOwnProperty('data') ? payload_data['data'] : new Error('Payload_data translate error');
+    dataType = payload_data.hasOwnProperty('type') ? payload_data['type'] : 'string';
     if (event instanceof Error) {
-      throw event;
+      console.log(event);
     } else if (rawdata instanceof Error) {
-      throw rawdata;
+      console.log(rawdata);
     } else {
+      // notice data type. 
+      // if reciving data is binary, encoding the rawdata to Buffer
+      if (dataType === 'binary')
+        rawdata = new Buffer(rawdata);
       // if nothing goes wrong, emit event to Server
       this.emit(event, rawdata);
     }
