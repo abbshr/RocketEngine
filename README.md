@@ -19,7 +19,7 @@ TODO: ws client, implement the security mechanism descripted in RFC 6455
 create a websocket server:
 ```
 
-    var WServer = require('../fSlider_ws').Server;
+    var WServer = require('fSlider_ws').Server;
 
     var http = require('http').createServer(function(req, res) {
       res.end('test');
@@ -30,8 +30,7 @@ create a websocket server:
     ws.on('connected', function(socket) { 
       socket.setTimeout(0);
       ws.on('win', function(data) { 
-        console.log(data);  
-        //socket.emit('gamewin' , {'name': 'Ran Aizen', 'say': 'hello Ran, you win' });
+        console.log(data);
         socket.emit('data', data);
       });
       ws.on('closing', function () {
@@ -50,7 +49,7 @@ create a websocket server:
 as client:
 ```
       <body>
-      <script src="./fSlider_ws/frontend/wsf.js"></script>
+      <script src="fSlider_ws/frontend/wsf.js"></script>
       <script>
         /* connect to a wsf */
         wsf.connect('ws://localhost:3000', function (socket) {
@@ -60,11 +59,15 @@ as client:
           });
           socket.on('close', function (e) {
             console.log('lose connection', e);
-          })
+          })          
+          // press testing
           socket.on('data', function (data) {
             var str = [];
             console.log(data);
             for (var i = 0; i < 1800000; i++) {
+              
+              // send 1800000 string in one time
+              socket.send(0);
               str[i] = 0;
             }
             str = str.join('');
@@ -74,6 +77,9 @@ as client:
           });
           socket.on('gamewin', function (data) {
             console.log(data);
+
+            // send a blod/ binary file
+            socket.emit('file', blob, 'binary');
           }); 
         });
       </script>
