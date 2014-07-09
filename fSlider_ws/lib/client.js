@@ -1,10 +1,11 @@
-var encodeFrame = require('./encode.js');
-var decodeFrame = require('./decode.js');
+var encodeFrame = require('./utils/encode.js');
+var decodeFrame = require('./utils/decode.js');
 
 /* 
 * Constructor @socket: net.Socket instance
 * method:
-* .emit @e, @data: emit an event '@e' with '@data' to the client
+* .emit @e, @data, [@type]: emit an event '@e' with '@data' to the client, 
+*       data encoding default to 'utf8 string'
 * .setTimeOut @tiemout
 */
 module.exports = Client;
@@ -24,19 +25,28 @@ function Client(socket) {
 * {
 *   'event'<String>: custom/system event name
 *   'data'<*>: real data to be sent
+*   'type'<String>: data encoding type ('binary' | 'string')
 * }
 *
 */
 
-Client.prototype.setTimeOut = function (timeout) {
-  this.socket.setTimeOut(timeout);
+Client.prototype.setTimeout = function (timeout) {
+  this.socket.setTimeout(timeout);
+};
+
+Client.prototype.close = function () {
+  this.socket.end();
+};
+
+Client.prototype.destroy = function () {
+  this.socket.destroy();
 };
 
 // emit event to current client
-Client.prototype.emit = function (e, data) {
+Client.prototype.emit = function (e, data, type) {
   
   // get the standard payload data format
-  var payload_data_json = JSON.stringify({ 'event': e, 'data': data });
+  var payload_data_json = JSON.stringify({ 'event': e, 'data': data, type: type || 'string' });
   var frame = {
     FIN: 1,
     Opcode: 1,
