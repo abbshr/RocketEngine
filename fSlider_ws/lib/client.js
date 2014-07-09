@@ -6,7 +6,10 @@ var decodeFrame = require('./utils/decode.js');
 * method:
 * .emit @e, @data, [@type]: emit an event '@e' with '@data' to the client, 
 *       data encoding default to 'utf8 string'
-* .setTimeOut @tiemout
+* .setTimeout @tiemout
+* .close
+* .destroy
+* .send @data, [@type]: suger of .emit('data', data, type)
 */
 module.exports = Client;
 
@@ -40,6 +43,11 @@ Client.prototype.close = function () {
 
 Client.prototype.destroy = function () {
   this.socket.destroy();
+};
+
+// simpify sending normal data
+Client.prototype.send = function (data, type) {
+  this.emit('data', data, type);
 };
 
 // emit event to current client

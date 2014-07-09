@@ -15,6 +15,7 @@
 * .on: bind listener on any event
 * .emit: emit an event to server on any level
 * .send: send normal data to server
+* .recive: recive normal data from server
 * .close: close the connection
 * sys_event
 * #open: on connection established
@@ -57,6 +58,8 @@
     };
     if (!ws_url) {
       throw new Error('URL is needed');
+    } else if (typeof ws_url != 'string') {
+      throw new Error('Unknow ws URL pattern');
     } else if (!ws_url.match(/^(ws:\/\/)|(wss:\/\/)/)) {
       throw new Error('Unknow ws URL pattern');
     } else {
@@ -68,6 +71,7 @@
         var payload_data = JSON.parse(e.data);
         var event = payload_data['event'];
         var data = payload_data['data'];
+        var type = payload_data['type'];
         socket._events[event] && socket._events[event].forEach(function (cb) {
           setTimeout(cb.bind(null, data), 0);
         });
@@ -99,10 +103,14 @@
         }, 
         payload_data_json = JSON.stringify(payload_data);
         this.ws.send(payload_data_json);
-        console.log(payload_data_json);
       };
+      // suger
       socket.send = function (data, type) {
-        this.emit("message", data, type);
+        this.emit("data", data, type);
+      };
+      // suger
+      socket.recive = function (cb) {
+        this.on('data', cb);
       };
       socket.close = function () {
         this.ws.close();

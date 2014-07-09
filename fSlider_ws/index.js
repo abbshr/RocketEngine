@@ -26,6 +26,7 @@ wsf = Object.create(new EventEmitter());
 * .unbind: opposite to .bind(server, options)
 * .listen @callback: start listen on http server, add listener to 'upgrade' event
 * .broadcast @e, @data: broadcast to all clients
+* .recive @cb: suger of .on('data', cb)
 * .on: (inherint from EventEmitter), on event triggered
 * .emit: (inherint from EventEmitter), trigger event
 * .removeListener: (inherint from EventEmitter)
@@ -123,11 +124,20 @@ wsf.Server.prototype.listen = function (callback) {
 * des: wsf server broadcast via this method.
 * @e: cumstom event name
 * @data: the msg to broadcast
+* @type: data type
 */
-wsf.Server.prototype.broadcast = function (e, data) {
+wsf.Server.prototype.broadcast = function (e, data, type) {
   this.sockets.forEach(function (client) {
-    client.emit(e, data);
+    client.emit(e, data, type);
   });
+};
+
+/*
+* #recive(cb)
+* des: the synax suger of .on('data', cb), for simplifing getting normal data
+*/
+wsf.Server.prototype.recive = function (cb) {
+  this.on('data', cb);
 };
 
 /* 'upgrade' event callback */
@@ -154,7 +164,6 @@ function upgrade_handler(req, socket) {
   }
 
   // if the request page URL not match, reject the request
-
   if (req.url !== server.namespace) 
     return;
 
