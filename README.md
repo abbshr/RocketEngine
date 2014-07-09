@@ -5,48 +5,79 @@ a Framework of super light weight implement WebSocket Protocol, used in project 
 
 + easy to use
 + super light weight
++ high performance
 + suit for newbies' learnning. such as creating a chat room...
 + no third part modules dependience
 
 ##### repo states
 
 now in v0.0.1, implement websocket server  
-TODO: ws client, implement the whole websocket protocol descript in RFC 6455
+TODO: ws client, implement the security mechanism descripted in RFC 6455
 
 ##### Usage
 
 create a websocket server:
 ```
-    var http = require('http');
-    var WServer = require('fSlider_ws').Server;
-    
-    var httpServer = http.createServer(function (req, res) {
-        res.end('ws test');
+
+    var WServer = require('../fSlider_ws').Server;
+
+    var http = require('http').createServer(function(req, res) {
+      res.end('test');
     });
-    
-    var ws = new WServer(httpServer).listen();
-    ws.on('connect', function (socket) {
-        ws.on('say', function (data) {
-            console.log(data);
-        });
-        socket.emit('welcome', JSON.stringify({'name': 'Ran', 'say': 'Hello~'}));
+
+    var ws = new WServer(http).listen(function(){console.log('wserver start')});
+
+    ws.on('connected', function(socket) { 
+      socket.setTimeout(0);
+      ws.on('win', function(data) { 
+        console.log(data);  
+        //socket.emit('gamewin' , {'name': 'Ran Aizen', 'say': 'hello Ran, you win' });
+        socket.emit('data', data);
+      });
+      ws.on('closing', function () {
+        console.log('client close the connection');
+      });
+      ws.on('message', function(data) {
+        console.log(data);
+        socket.emit('gamewin', data);
+      });
+      console.log('server online'); 
     });
-    
-    httpServer.listen(3000);
+
+    http.listen(3000);
 ```
 
-a simple client:
+as client:
 ```
-    var ws = new WebSocket('ws://localhost:3000');
-    
-    ws.onmessage = function (e) { 
-        var data = JSON.parse(e.data);
-        console.log(data); 
-    };
-    
-    ws.onopen = function () {
-        ws.send(JSON.stringify({ 'event': "say", data: "hi" }));
-    };
+      <body>
+      <script src="./fSlider_ws/frontend/wsf.js"></script>
+      <script>
+        /* connect to a wsf */
+        wsf.connect('ws://localhost:3000', function (socket) {
+          socket.on('open', function (e) {
+            socket.emit('win', {'comment': 'hi'});
+            console.log('connection established');
+          });
+          socket.on('close', function (e) {
+            console.log('lose connection', e);
+          })
+          socket.on('data', function (data) {
+            var str = [];
+            console.log(data);
+            for (var i = 0; i < 1800000; i++) {
+              str[i] = 0;
+            }
+            str = str.join('');
+
+            // send a 1757 KB string
+            socket.send(str);
+          });
+          socket.on('gamewin', function (data) {
+            console.log(data);
+          }); 
+        });
+      </script>
+      </body>
 ```
 
 Server Options:
@@ -73,6 +104,10 @@ Other usages:
 
     client.setTimeOut();
 
+    client.destroy();
+
+    client.close();
+
     ws.broadcast();
 
     ws.emit();
@@ -82,7 +117,7 @@ Other usages:
     ws.removeListener();
 ```
 
-##### System Level Events
+##### Server System Level Events
 these events' name are important and shouldn't be overwrited or conflict in application
 ```
     
