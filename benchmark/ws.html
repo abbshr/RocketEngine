@@ -1,16 +1,30 @@
 <body>
   <div id="ws"></div>
+  <script src="../fSlider_ws/frontend/wsf.js"></script>
   <script>
-    var ws = new WebSocket('ws://localhost:3000');
-    var div = document.querySelector('#ws');
-    ws.onmessage = function (e) { 
-      var data = JSON.parse(e.data).data;
-      console.log(data);
-      div.innerHTML += (data.name + ': ' + data.say + '<br>'); 
-    };
-    ws.onopen = function () {
-      for (var i = 0; i < 10000; i++)
-      ws.send(JSON.stringify({ event: "custom", data: 'Hi~, this is client ran' }));
-    }
+    /* reference usage */
+    wsf.connect('ws://localhost:3000', function (socket) {
+      socket.on('open', function (e) {
+        socket.emit('win', {'comment': 'hi'});
+        console.log('connection established');
+      });
+      socket.on('close', function (e) {
+        console.log('lose connection', e);
+      })
+      socket.on('data', function (data) {
+        var str = [];
+        console.log(data);
+        for (var i = 0; i < 1800000; i++) {
+          str[i] = 0;
+        }
+        str = str.join('');
+
+        // send a 1757 KB string
+        socket.send(str);
+      });
+      socket.on('gamewin', function (data) {
+        console.log(data);
+      }); 
+    });
   </script>
 </body>

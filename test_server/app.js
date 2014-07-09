@@ -1,4 +1,4 @@
-var WServer = require('./fSlider_ws').Server;
+var WServer = require('../fSlider_ws').Server;
 
 var http = require('http').createServer(function(req, res) {
   res.end('test');
@@ -6,12 +6,21 @@ var http = require('http').createServer(function(req, res) {
 
 var ws = new WServer(http).listen(function(){console.log('wserver start')});
 
-ws.on('connect', function(socket) { 
-  ws.on('custom', function(data) { 
+ws.on('connected', function(socket) { 
+  socket.setTimeout(0);
+  ws.on('win', function(data) { 
     console.log(data);  
-    socket.emit('custom' , {'name': 'Ran Aizen', 'say': 'hello~, I\'m Ran' });
+    //socket.emit('gamewin' , {'name': 'Ran Aizen', 'say': 'hello Ran, you win' });
+    socket.emit('data', data);
   });
-  console.log('hi~ I\'m online'); 
+  ws.on('closing', function () {
+    console.log('client close the connection');
+  });
+  ws.on('message', function(data) {
+    console.log(data);
+    socket.emit('gamewin', data);
+  });
+  console.log('server online'); 
 });
 
 http.listen(3000);
