@@ -48,42 +48,40 @@ create a websocket server:
 
 as client:
 ```
-      <body>
-      <script src="fSlider_ws/frontend/wsf.js"></script>
+
+    <body>
+      <script src="../fSlider_ws/frontend/event.js/event.js"></script>
+      <script src="../fSlider_ws/frontend/wsf.js"></script>
       <script>
-        /* connect to a wsf */
-        wsf.connect('ws://localhost:3000', function (socket) {
+        /* reference usage */
+        wsf.connect('ws://localhost:3000', function (e) {
+          var socket = e.detail;
+          console.log(socket);
           socket.on('open', function (e) {
             socket.emit('win', {'comment': 'hi'});
             console.log('connection established');
           });
           socket.on('close', function (e) {
-            console.log('lose connection', e);
-          })          
-          // press testing
-          socket.recive(function (data) {
+            console.log('lose connection', e.detail);
+          })
+          socket.recive(function (e) {
+            var data = e.detail;
             var str = [];
             console.log(data);
-            for (var i = 0; i < 1800000; i++) {
-              
-              // send 1800000 string in one time
-              socket.send(0);
+            for (var i = 0; i < 100000; i++) {
               str[i] = 0;
             }
             str = str.join('');
-
             // send a 1757 KB string
             socket.send(str);
           });
-          socket.on('gamewin', function (data) {
+          socket.on('gamewin', function (e) {
+            var data = e.detail;
             console.log(data);
-
-            // send a blod/ binary file
-            socket.emit('file', blob, 'binary');
           }); 
         });
       </script>
-      </body>
+    </body>
 ```
 
 Server Options:

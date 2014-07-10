@@ -1,29 +1,34 @@
 <body>
   <div id="ws"></div>
+  <script src="../fSlider_ws/frontend/event.js/event.js"></script>
   <script src="../fSlider_ws/frontend/wsf.js"></script>
   <script>
     /* reference usage */
-    wsf.connect('ws://localhost:3000', function (socket) {
+    wsf.connect('ws://localhost:3000', function (e) {
+      var socket = e.detail;
+      console.log(socket);
       socket.on('open', function (e) {
         socket.emit('win', {'comment': 'hi'});
         console.log('connection established');
       });
       socket.on('close', function (e) {
-        console.log('lose connection', e);
+        console.log('lose connection', e.detail);
       })
-      socket.recive(function (data) {
-        var str = [];
+      socket.recive(function (e) {
+        var data = e.detail;
+        //var str = [];
         console.log(data);
-        for (var i = 0; i < 1800000; i++) {
-          str[i] = 0;
-          socket.send(0);
+        for (var i = 0; i < 100000; i++) {
+          socket.send(1);
+          //str[i] = 0;
         }
-        str = str.join('');
+        //str = str.join('');
 
         // send a 1757 KB string
-        socket.send(str);
+        //socket.send(str);
       });
-      socket.on('gamewin', function (data) {
+      socket.on('gamewin', function (e) {
+        var data = e.detail;
         console.log(data);
       }); 
     });
