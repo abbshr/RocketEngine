@@ -2,7 +2,7 @@
 /*
 * wsf
 * method
-* .on: bind listener on system level event
+* .on @eName, @cb(@e): bind listener on system level event, invoke @e.detail to get event data
 * .emit: trigger an event on wsf
 * .removeListener: opposite to method .on
 * .connect @url, @cb(wsf.socket): return wsf.socket
@@ -12,9 +12,10 @@
 * object
 * wsf.socket: returned by wsf.connect() or wsf.connect callback's first argument 
 * method
-* .on: bind listener on any event
-* .emit: emit an event to server on any level
-* .send: send normal data to server
+* .on @eName, @cb(@e): bind listener on any event, invoke @e.detail to get event data
+* .originEmit: origin .emit() method of EventEmitter
+* .emit: overwrite the .emit() method of EventEmitter. emit an event to server on any level
+* .send @cb(@e): send normal data to server
 * .recive: recive normal data from server
 * .close: close the connection
 * sys_event
@@ -24,17 +25,27 @@
 */
 
 (function (global) {
-  global.WebSocket ||  new Error('only supported in explorer');
 
-  var wsf = { 
+  if (!global.EventEmitter)
+    throw new Error('object EventEmitter isnt initially right');
+  else if (!global.WebSocket)
+    throw new Error('only supported in explorer');
+
+  var EventEmitter = global.EventEmitter;
+
+  /*var wsf = { 
     _events: {
       'connect': [],
       'disconnect': [] 
     } 
-  };
+  };*/
 
+  var wsf = new EventEmitter({ bubbles: false, cancelable: false });
+
+  /*
   wsf.on = function (eName, cb) {
-    this._events[eName] ? this._events[eName].push(cb) : (this._events[eName] = [cb]);
+    //this._events[eName] ? this._events[eName].push(cb) : (this._events[eName] = [cb]);
+    
   };
 
   wsf.emit = function (eName, data) {
@@ -45,17 +56,20 @@
 
   wsf.removeListener = function (eName, cb) {
     var index = this._events[eName] && this._events[eName].indexOf(cb);
-    this._events[eName].splice(index, 1);
+    this._events[eName].splice(index, 1)
   };
+  */
 
   wsf.connect = function (ws_url, cb) {
-    var socket = { 
+    /*var socket = { 
       _events: { 
         'open': [],
         'close': [],
         'error': [] 
       } 
-    };
+    };*/
+    var socket = new EventEmitter({ bubbles: false, cancelable: false });
+
     if (!ws_url) {
       throw new Error('URL is needed');
     } else if (typeof ws_url != 'string') {
@@ -66,35 +80,40 @@
       if (cb instanceof Function) 
         // async
         this.on('connect', cb);
+      socket.originEmit = socket.emit;
       socket.ws = new WebSocket(ws_url);
       socket.ws.onmessage = function(e) {
         var payload_data = JSON.parse(e.data);
         var event = payload_data['event'];
         var data = payload_data['data'];
         var type = payload_data['type'];
-        socket._events[event] && socket._events[event].forEach(function (cb) {
+        /*socket._events[event] && socket._events[event].forEach(function (cb) {
           setTimeout(cb.bind(null, data), 0);
-        });
+        });*/
+        socket.originEmit(event, data, type);
       };
       socket.ws.onopen = function (e) {
-        socket._events['open'].forEach(function (cb) {
+        /*socket._events['open'].forEach(function (cb) {
           setTimeout(cb.bind(null, e), 0);
-        });
+        });*/
+        socket.originEmit('open', e);
       };
       socket.ws.onclose = function (e) {
-        socket._events['close'].forEach(function (cb) {
+        /*socket._events['close'].forEach(function (cb) {
           setTimeout(cb.bind(null, e), 0);
-        });
+        });*/
+        socket.originEmit('close', e);
         wsf.emit('disconnect', socket);
       };
       socket.ws.onerror = function (e) {
-        socket._events['error'].forEach(function (cb) {
+        /*socket._events['error'].forEach(function (cb) {
           setTimeout(cb.bind(null, e), 0);
-        });
+        });*/
+        socket.originEmit('error', e);
       };
-      socket.on = function (e, cb) {
+      /*socket.on = function (e, cb) {
         this._events[e] ? this._events[e].push(cb) : (this._events[e] = [cb]);
-      };
+      };*/
       socket.emit = function (e, data, type) {
         var payload_data = {
           'event': e || '',
