@@ -71,7 +71,7 @@ as client:
           console.log(data);
           // notice that complication request count may be very low in this version
           // because of the explorer's event mechanism,
-          // in this version, you'll get a non-UI-blocked, 
+          // in this version, you'll get a UI-non-blocking, 
           // for exchange, you'll get a low performance
 
           // if you insist on sending even small data, great number of times in a loop, 
