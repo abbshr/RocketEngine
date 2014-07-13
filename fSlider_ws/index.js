@@ -155,6 +155,7 @@ function upgrade_handler(req, socket) {
   // recive-buffer, as ref 
   var buffer = {
     frame: new Buffer(0),
+    fragmentCache: new Buffer(0)
   };
 
   // up to limit, throw exception
@@ -236,6 +237,7 @@ function upgrade_handler(req, socket) {
 /* arguments @client and @buffer has been pre-setted */
 function data_handler(client, buffer, data) {
   var readable_data, payload_data, event, rawdata, dataType;
+  var FIN, Opcode, MASK, Payload_len;
 
   // concat the buffer with last time resolved frame
   // because sometimes a lot of 'data' event may be triggered in one time,
@@ -245,31 +247,51 @@ function data_handler(client, buffer, data) {
 
   // the "while loop" to get all right data remain in buffer
   while (readable_data = decodeFrame(buffer.frame)) {
-    // translate raw Payload_data to string
-    payload_data = readable_data['frame']['Payload_data'].toString();
-    // if payload_data format is not standard, JSON.parse will throw an error
-    try {
-      payload_data = JSON.parse(payload_data);
-    } catch (e) {
-      // cut this frame and skip to remain_frame
-      console.log(e);
-    }
-    event = payload_data.hasOwnProperty('event') ? payload_data['event'] : new Error('Payload_data translate error');
-    rawdata = payload_data.hasOwnProperty('data') ? payload_data['data'] : new Error('Payload_data translate error');
-    dataType = payload_data.hasOwnProperty('type') ? payload_data['type'] : 'string';
-    if (event instanceof Error) {
-      console.log(event);
-    } else if (rawdata instanceof Error) {
-      console.log(rawdata);
+    FIN = readable_data['frame']['FIN'],
+    Opcode = readable_data['frame']['Opcode'],
+    MASK = readable_data['frame']['MASK'],
+    Payload_len = readable_data['frame']['Payload_len'];
+    
+    // if recive frame is in fragment
+    if (!FIN) {
+      payload_data = Buffer.concat([buffer.fragmentCache, payload_data]);
     } else {
-      // notice data type. 
-      // if reciving data is binary, encoding the rawdata to Buffer
-      if (dataType === 'binary')
-        rawdata = new Buffer(rawdata);
-      // if nothing goes wrong, emit event to Server
-      this.emit(event, rawdata);
+      // translate raw Payload_data to string
+      if (Opcode) {
+        // don't fragment
+        payload_data = readable_data['frame']['Payload_data'].toString();
+      } else {
+        // the last fragment
+        payload_data = Buffer.concat([buffer.fragmentCache, payload_data]).toString();
+        // & init the fragment cache
+        buffer.fragmentCache = new Buffer(0);
+      }
+      // if payload_data format is not standard, JSON.parse will throw an error
+      try {
+        payload_data = JSON.parse(payload_data);
+      } catch (e) {
+        // cut this frame and skip to remain_frame
+        console.log(e);
+      }
+      // now payload_data is an JSON object or a string
+      event = payload_data.hasOwnProperty('event') ? payload_data['event'] : new Error('Payload_data translate error');
+      rawdata = payload_data.hasOwnProperty('data') ? payload_data['data'] : new Error('Payload_data translate error');
+      dataType = payload_data.hasOwnProperty('type') ? payload_data['type'] : 'string';
+      
+      if (event instanceof Error) {
+        console.log(event);
+      } else if (rawdata instanceof Error) {
+        console.log(rawdata);
+      } else {
+        // notice data type. 
+        // if reciving data is binary, encoding the rawdata to Buffer
+        if (dataType === 'binary')
+          rawdata = new Buffer(rawdata);
+        // if nothing goes wrong, emit event to Server
+        this.emit(event, rawdata);
+      }
+      // the rest frame data
+      buffer.frame = readable_data.remain_frame;
     }
-    // the rest frame data
-    buffer.frame = readable_data.remain_frame;
   }
 }

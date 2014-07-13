@@ -3,28 +3,41 @@
 * @frame<JSON>: a JSON object as readable_data resolved by decoder
 * return: frame<Buffer>
 */
+
+/*
+* standard input-frame format:
+* {
+*   FIN: ,
+*   Opcode: ,
+*   MASK: ,
+*   [Masking_key: <Array(4)>,]
+*   Payload_data: <String|Buffer>
+* }
+*/
 module.exports = function (frame) {
 
   // for control bit: FIN, Opcode, MASK, Payload_len
-  var preBytes = [];
+  var preBytes = [], payBytes = null;
 
-  // encode the payload_data
-  var payBytes = new Buffer(frame['Payload_data']);
+  // if Payload_data is a string, encode the payload_data
+  if (typeof frame['Payload_data'] == 'string')
+    payBytes = new Buffer(frame['Payload_data']);
+  if (typeof frame['Payload_data'] == 'buffer')
+    payBytes = frame['Payload_data'];
+
   var dataLength = payBytes.length;
 
   preBytes.push((frame['FIN'] << 7) + frame['Opcode']);
 
-  if (dataLength < 126)
+  if (dataLength < 126) {
     preBytes.push((frame['MASK'] << 7) + dataLength);
-
-  else if (dataLength < 65536)
+  } else if (dataLength < 65536) {
     preBytes.push(
       (frame['MASK'] << 7) + 126, 
       (dataLength & 0xFF00) >> 8,
       dataLength & 0xFF
     );
-
-  else
+  } else {
     preBytes.push(
       (frame['MASK'] << 7) + 127,
       0, 0, 0, 0,
@@ -33,6 +46,16 @@ module.exports = function (frame) {
       (dataLength & 0xFF00) >> 8,
       dataLength & 0xFF
     );
+  }
+
+  if (frame['MASK']) {
+    preBytes.push(
+      frame['Masking_key'][0],
+      frame['Masking_key'][1],
+      frame['Masking_key'][2],
+      frame['Masking_key'][3]
+    );
+  }
 
   // encode control bit data
   preBytes = new Buffer(preBytes);
