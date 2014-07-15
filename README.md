@@ -52,7 +52,7 @@ create a websocket server:
     console.log('client online, cid:', socket.id); 
   });
 
-  http.listen(3000);
+  httpd.listen(3000);
 ```
 
 as client:
