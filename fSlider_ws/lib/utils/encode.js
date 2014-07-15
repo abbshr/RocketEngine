@@ -18,12 +18,13 @@ module.exports = function (frame) {
 
   // for control bit: FIN, Opcode, MASK, Payload_len
   var preBytes = [], payBytes = null;
-
   // if Payload_data is a string, encode the payload_data
-  if (frame['Payload_data'] instanceof  String)
+  if (typeof frame['Payload_data'] == 'string')
     payBytes = new Buffer(frame['Payload_data']);
-  if (frame['Payload_data'] instanceof  Buffer)
+  else if (frame['Payload_data'] instanceof Buffer)
     payBytes = frame['Payload_data'];
+  else
+    payBytes = new Buffer('');
 
   var dataLength = payBytes.length;
 
@@ -59,7 +60,6 @@ module.exports = function (frame) {
 
   // encode control bit data
   preBytes = new Buffer(preBytes);
-
   // return the raw frame
   return Buffer.concat([preBytes, payBytes]);
 };
