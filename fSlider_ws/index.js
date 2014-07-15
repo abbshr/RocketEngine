@@ -278,11 +278,10 @@ function data_handler(client, buffer, data) {
         // continue frame
         // the last fragment
         case 0x0:
-          payload_data = Buffer.concat([buffer.fragmentCache, payload_data]).toString();
+          payload_data = Buffer.concat([buffer.fragmentCache, payload_data]);
+          Opcode = payload_data.slice(0,1) & 0x0F;
           // init the fragment cache
           buffer.fragmentCache = new Buffer(0);
-          break;
-        
         // non-control frame
         // system level text data
         case 0x1:

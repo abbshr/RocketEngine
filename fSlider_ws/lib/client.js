@@ -32,7 +32,7 @@ function Client(socket) {
   this.id = crypto.randomBytes(16).toString('hex');
   this.socket = socket;
   // default to 2^20, max is 2^32 (4GB)
-  this.fragmentSize = Math.pow(2, 20);
+  this.fragmentSize = 0x100000;
   this.ip = socket.remoteAddress;
   this.port = socket.remotePort;
 }
@@ -108,12 +108,12 @@ Client.prototype.emitCtrl = function (Opcode, Payload_data, MASK) {
 // mask = 0, server => client
 // mask = 1, client => server
 Client.prototype.emit = function (e, data, mask) {
-  // first judge the data type
-  var type = data instanceof Buffer ? 'binary' : 'text';
-
   // get the standard payload data format
   var payload_data = data;
-  var FIN = 1, Opcode = 0x1, MASK = 0, Masking_key = [];
+  var FIN = 1, 
+      MASK = 0, 
+      Masking_key = [],
+      Opcode = data instanceof Buffer ? 0x2 : 0x1;
   var fragment = 0;
   var frame = null;
   var head_len;
@@ -122,7 +122,6 @@ Client.prototype.emit = function (e, data, mask) {
   var j = 0;
 
   if (type == 'binary') {
-    Opcode = 0x2;
     // handle the bin data
     e = new Buffer(e);
     head_len = new Buffer(1);

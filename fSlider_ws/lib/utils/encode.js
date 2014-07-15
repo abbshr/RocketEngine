@@ -24,7 +24,7 @@ module.exports = function (frame) {
   else if (frame['Payload_data'] instanceof Buffer)
     payBytes = frame['Payload_data'];
   else
-    payBytes = new Buffer('');
+    payBytes = new Buffer(0);
 
   var dataLength = payBytes.length;
 
