@@ -18,7 +18,8 @@ TODO: ws as a client, implement the security mechanism descripted in RFC 6455
 ##### Usage
 
 create a websocket server:
-```
+
+```js
 
   var fs = require('fs');
   var http = require('http');
@@ -56,7 +57,8 @@ create a websocket server:
 ```
 
 as client:
-```
+
+```html
 
   <body>
     <img id="ws"></div>
@@ -87,7 +89,8 @@ as client:
 
 Server Options:
 
-```
+```js
+
     var options = {
       namespace: '/news',     // default to '/'
       max: 100                // default to 60
@@ -98,8 +101,8 @@ Server Options:
 
 Other usages:
 
-```
-    
+```js
+
     wsf.connect();
     
     server.bind();
@@ -133,7 +136,8 @@ Other usages:
 
 ##### Server System Level Events
 these events' name are important and shouldn't be overwrited or conflict in application
-```
+
+```js
     
     'listen' 
         @httpServer: new http.Server()
