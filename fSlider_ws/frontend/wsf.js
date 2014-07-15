@@ -71,16 +71,33 @@
       // set binary data format
       socket.ws.binaryType = 'blob';
       socket.ws.onmessage = function(e) {
-        // TODO: judge the recive-data type
-
-        // if type is 'text'
-        /*var payload_data = JSON.parse(e.data);
-        var event = payload_data['event'];
-        var data = payload_data['data'];
-        //var type = payload_data['type'];*/
-        socket._events['data'] && socket._events['data'].forEach(function (cb) {
-          setTimeout(cb.bind(null, e), 0);
-        });
+        var data = e.data;
+        var head_len, event;
+        if (data instanceof Blob) {
+          var fr = new FileReader();
+          fr.onload = function () {
+            head_len = new DataView(this.result);
+            head_len = head_len.getUint8(0);
+            event = data.slice(1, head_len + 1);
+            data = data.slice(head_len + 1);
+            this.onload = function () {
+              event = this.result;
+              socket._events[event] && socket._events[event].forEach(function (cb) {
+                setTimeout(cb.bind(null, data), 0);
+              });
+            };
+            this.readAsText(event);
+          };
+          head_len = data.slice(0, 1);
+          fr.readAsArrayBuffer(head_len);
+        } else if (data instanceof String) {
+          data = JSON.parse(data);
+          event = data['event'];
+          data = data['data'];
+          socket._events[event] && socket._events[event].forEach(function (cb) {
+            setTimeout(cb.bind(null, data), 0);
+          });
+        }
       };
       socket.ws.onopen = function (e) {
         socket._events['open'].forEach(function (cb) {
@@ -102,16 +119,16 @@
         this._events[e] ? this._events[e].push(cb) : (this._events[e] = [cb]);
       };
       socket.emit = function (e, data) {
-        var type = 'text';
         var payload_data = data;
-        // TODO: judge the data type 
-        if (data instanceof Blob || data instanceof ArrayBuffer) {
-          type = 'binary';
-
-          // TODO: handle bin data
-
-        } else {
-          // the 'text' data
+        var head_len;
+        if (data instanceof Blob) {
+          head_len = new DataView(new ArrayBuffer(1));
+          e = new Blob([e]);
+          // write in big endian
+          head_len.setUint8(0, e.size);
+          head_len = new Blob([head_len.buffer]);
+          payload_data = new Blob([head_len, e, data]);
+        } else if (data instanceof String) {
           payload_data = {
             'event': e || '',
             'data': data || ''
