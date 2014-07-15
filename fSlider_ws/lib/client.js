@@ -1,7 +1,10 @@
 
-var utils          = require('./utils'),
-var encodeFrame    = utils.encodeFrame,
-var decodeFrame    = utils.decodeFrame,
+var EventEmitter   = require('events').EventEmitter;
+var util           = require('util');
+
+var utils          = require('./utils');
+var encodeFrame    = utils.encodeFrame;
+var decodeFrame    = utils.decodeFrame;
 var genMasking_key = utils.genMasking_key;
 
 /* 
@@ -18,11 +21,15 @@ module.exports = Client;
 
 /* ref of the client which connected to wsf Server */
 function Client(socket) {
+  this.id = null;
   this.socket = socket;
   this.fragmentSize = 65536;
   this.ip = socket.remoteAddress;
   this.port = socket.remotePort;
 }
+
+// inherint from EventEmitter
+util.inherits(Client, EventEmitter);
 
 /* 
 * wsf Payload_data in application-level Exchange Standard format:
@@ -50,26 +57,49 @@ Client.prototype.destroy = function () {
 };
 
 // simpify sending normal data
-Client.prototype.send = function (data, type, mask) {
-  this.emit('data', data, type);
+Client.prototype.send = function (data, mask) {
+  this.emit('data', data, mask);
 };
 
+/*
+* #recive(cb)
+* des: the synax suger of .on('data', cb), for simplifing getting normal data
+*/
+Client.prototype.recive = function (cb) {
+  this.on('data', cb);
+};
+
+// ref the origin EventEmitter#emit()
+Client.prototype.sysEmit = Client.prototype.emit;
+
+// overwrite the .emit() method
 // emit event to current client, not system level event.
 // mask = 0, server => client
 // mask = 1, client => server
-Client.prototype.emit = function (e, data, type, mask) {
-  
+Client.prototype.emit = function (e, data, mask) {
+  // first judge the data type
+  var type = data instanceof Buffer ? 'binary' : 'text';
+
   // get the standard payload data format
-  var payload_data_json = JSON.stringify({ 'event': e, 'data': data, type: type || 'string' });
+  var payload_data = data;
   var FIN = 1, Opcode = 0x1, MASK = 0, Masking_key = [];
   var fragment = 0;
   var frame = null;
+  
   // mark the index of the payload data's last char has been sent
   var j = 0;
 
-  // for Opcode
-  //if (type == 'binary')
-  //  Opcode = 0x2;
+  if (type == 'binary') {
+    Opcode = 0x2;
+    // handle the bin data
+
+  } else {
+    // text data
+    payload_data = JSON.stringify({
+      'event': e, 
+      'data': data
+    });
+  }
 
   // mask
   if (mask) {
@@ -78,23 +108,26 @@ Client.prototype.emit = function (e, data, type, mask) {
   }
 
   // fragment
-  if (payload_data_json.length > this.fragmentSize) {
-    fragment = Math.ceil(payload_data_json.length / this.fragmentSize);
+  if (payload_data.length > this.fragmentSize) {
+    fragment = Math.ceil(payload_data.length / this.fragmentSize);
     FIN = 0;
     for (var i = 0; i < fragment; i++) {
+      // not the first fragment, set Opcode to 0 stand for 'continue'
       if (i) Opcode = 0;
+      // if it's the last fragment, set FIN to 1 stand for 'no more fragment'
       if (i == fragment - 1) FIN = 1;
+      
+      // construct the fragment
       frame = {
         FIN: FIN,
         Opcode: Opcode,
         MASK: MASK,
         Masking_key: Masking_key,
-        Payload_data: payload_data_json.substr(j, this.fragmentSize)
+        // inc the mark
+        Payload_data: payload_data.slice(j, j += this.fragmentSize)
       };
       // if return false, pause the 'data' event handling progress
       this.socket.write(encodeFrame(frame)); //|| this.socket.pause();
-      // inc the mark
-      j += fragmentSize;
     }
   } else {
     // not fragment
@@ -103,9 +136,9 @@ Client.prototype.emit = function (e, data, type, mask) {
       Opcode: Opcode,
       MASK: MASK,
       Masking_key: Masking_key,
-      Payload_data: payload_data_json
+      Payload_data: payload_data
     };
     // if return false, pause the 'data' event handling progress
-    this.socket.write(encodeFrame(frame)) || this.socket.pause();
+    this.socket.write(encodeFrame(frame)); //|| this.socket.pause();
   }
-}
+};

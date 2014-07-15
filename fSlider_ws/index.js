@@ -1,6 +1,7 @@
 
 var http         = require('http');
 var crypto       = require('crypto');
+var util         = require('util');
 var EventEmitter = require('events').EventEmitter;
 
 var core         = require('./lib'),
@@ -26,7 +27,6 @@ wsf = Object.create(new EventEmitter());
 * .unbind: opposite to .bind(server, options)
 * .listen @callback: start listen on http server, add listener to 'upgrade' event
 * .broadcast @e, @data: broadcast to all clients
-* .recive @cb: suger of .on('data', cb)
 * .on: (inherint from EventEmitter), on event triggered
 * .emit: (inherint from EventEmitter), trigger event
 * .removeListener: (inherint from EventEmitter)
@@ -72,7 +72,27 @@ wsf.Server = function (server, options) {
 };
 
 // inherint from EventEmitter
-wsf.Server.prototype = new EventEmitter();
+util.inherits(wsf.Server, EventEmitter);
+
+// ref the origin .emit()
+wsf.Server.prototype.sysEmit = wsf.Server.prototype.emit;
+
+// overwrite the .emit()
+/*
+* #emit(client, event, data)
+* des: emit an event to the given client with the given data, if client is null, the effect as .broadcast()
+* @client:
+* @event:
+* @data:
+*/
+wsf.Server.prototype.emit = function (client, event, data) {
+  var server = this;
+  console.log(client, 'ss');
+  if (client && client instanceof Client)
+    client.emit(event, data);
+  else
+    console.log(new Error('client must be an instance of Client!'));
+};
 
 /* 
 * #bind(server, options) 
@@ -115,7 +135,7 @@ wsf.Server.prototype.listen = function (callback) {
     return new Error('no http server init');
   // bind 'upgrade' event callback
   httpServer.on('upgrade', upgrade_handler.bind(this));
-  this.emit('listen', httpServer);
+  this.sysEmit('listen', httpServer);
   return this;
 };
 
@@ -130,14 +150,6 @@ wsf.Server.prototype.broadcast = function (e, data, type) {
   this.sockets.forEach(function (client) {
     client.emit(e, data, type);
   });
-};
-
-/*
-* #recive(cb)
-* des: the synax suger of .on('data', cb), for simplifing getting normal data
-*/
-wsf.Server.prototype.recive = function (cb) {
-  this.on('data', cb);
 };
 
 /* 'upgrade' event callback */
@@ -160,7 +172,7 @@ function upgrade_handler(req, socket) {
 
   // up to limit, throw exception
   if (server.sockets.length + 1 > server.MAX) {
-    server.emit('uptolimit', server.MAX);
+    server.sysEmit('uptolimit', server.MAX);
     return new Error('can not handle this request, socket has been up to the MAX number');
   }
 
@@ -193,33 +205,34 @@ function upgrade_handler(req, socket) {
         stack.splice(i, 1);
     });
     // trigger 'disconnected' event
-    server.emit('disconnected', client);
+    server.sysEmit('disconnected', client);
     if (has_error)
       console.log('some problems happened during socket closing');
   });
 
   // client ready to disconnect
   socket.on('end', function (data) {
+    console.log('close');
     if (data) 
       data_handler.bind(server, client, buffer)(data);
     socket.end();
-    server.emit('closing', data);
+    server.sysEmit('closing', data);
   });
 
   socket.on('drain', function () {
     socket.resume();
-    server.emit('drained', socket.bufferSize);
+    server.sysEmit('drained', socket.bufferSize);
     console.log('system buffer has been drained');
   });
 
   socket.on('timeout', function () {
     socket.end('connection closed by timeout');
-    server.emit('timeout');
+    server.sysEmit('timeout');
   });
 
   socket.on('error',function (err) {
     socket.destroy();
-    server.emit('exception', err);
+    server.sysEmit('exception', err);
     console.log(err);
   });
 
@@ -230,12 +243,14 @@ function upgrade_handler(req, socket) {
   socket.write(resHeaders) || socket.pause();
 
   // on connection established
-  server.emit('connected', client);
+  server.sysEmit('connected', client);
 }
 
 /* this has been binded to Server instance */
 /* arguments @client and @buffer has been pre-setted */
 function data_handler(client, buffer, data) {
+  var server = this;
+
   var readable_data, payload_data, event, rawdata, dataType;
   var FIN, Opcode, MASK, Payload_len;
 
@@ -256,42 +271,63 @@ function data_handler(client, buffer, data) {
     if (!FIN) {
       payload_data = Buffer.concat([buffer.fragmentCache, payload_data]);
     } else {
-      // translate raw Payload_data to string
-      if (Opcode) {
-        // don't fragment
-        payload_data = readable_data['frame']['Payload_data'].toString();
-      } else {
+      // don't fragment or the last fragment
+      // translate raw Payload_data
+      switch (Opcode) {
+
+        // continue frame
         // the last fragment
-        payload_data = Buffer.concat([buffer.fragmentCache, payload_data]).toString();
-        // & init the fragment cache
-        buffer.fragmentCache = new Buffer(0);
+        case 0x0:
+          payload_data = Buffer.concat([buffer.fragmentCache, payload_data]).toString();
+          // init the fragment cache
+          buffer.fragmentCache = new Buffer(0);
+          break;
+        
+        // non-control frame
+        // system leve text data
+        case 0x1:
+        // system level binary data
+        case 0x2:
+          payload_data = readable_data['frame']['Payload_data'];
+          /*try {
+            payload_data = JSON.parse(payload_data);
+          } catch (e) {
+            // cut this frame and skip to remain_frame
+            console.log(e);
+          }
+          // now payload_data is an JSON object or a string
+          event = payload_data.hasOwnProperty('event') ? payload_data['event'] : new Error('Payload_data translate error');
+          rawdata = payload_data.hasOwnProperty('data') ? payload_data['data'] : new Error('Payload_data translate error');
+          dataType = payload_data.hasOwnProperty('type') ? payload_data['type'] : 'string';
+          
+          if (event instanceof Error) {
+            console.log(event);
+          } else if (rawdata instanceof Error) {
+            console.log(rawdata);
+          } else {
+            // notice data type. 
+            // if reciving data is binary, encoding the rawdata to Buffer
+            if (dataType === 'binary')
+              rawdata = new Buffer(rawdata);
+            // if nothing goes wrong, emit event to Server
+            client.sysEmit(event, rawdata);
+          }*/
+          client.sysEmit('data', payload_data);
+          break;
+        
+        // control frame
+        // Close Frame
+        case 0x8:
+          break;
+        // PING
+        case 0x9:
+          break;
+        // PONG
+        case 0xA:
+          break;
       }
-      // if payload_data format is not standard, JSON.parse will throw an error
-      try {
-        payload_data = JSON.parse(payload_data);
-      } catch (e) {
-        // cut this frame and skip to remain_frame
-        console.log(e);
-      }
-      // now payload_data is an JSON object or a string
-      event = payload_data.hasOwnProperty('event') ? payload_data['event'] : new Error('Payload_data translate error');
-      rawdata = payload_data.hasOwnProperty('data') ? payload_data['data'] : new Error('Payload_data translate error');
-      dataType = payload_data.hasOwnProperty('type') ? payload_data['type'] : 'string';
-      
-      if (event instanceof Error) {
-        console.log(event);
-      } else if (rawdata instanceof Error) {
-        console.log(rawdata);
-      } else {
-        // notice data type. 
-        // if reciving data is binary, encoding the rawdata to Buffer
-        if (dataType === 'binary')
-          rawdata = new Buffer(rawdata);
-        // if nothing goes wrong, emit event to Server
-        this.emit(event, rawdata);
-      }
-      // the rest frame data
-      buffer.frame = readable_data.remain_frame;
     }
+    // the rest frame data
+    buffer.frame = readable_data.remain_frame;
   }
 }
