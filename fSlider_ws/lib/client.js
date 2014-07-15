@@ -1,6 +1,7 @@
 
 var EventEmitter   = require('events').EventEmitter;
 var util           = require('util');
+var crypto         = require('crypto');
 
 var utils          = require('./utils');
 var encodeFrame    = utils.encodeFrame;
@@ -15,15 +16,23 @@ var genMasking_key = utils.genMasking_key;
 * .setTimeout @tiemout
 * .close
 * .destroy
+* .sysEmit
+* .emitCtrl
+* .on
+* .once
+* .removeListener
+* .recive
 * .send @data, [@type]: suger of .emit('data', data, type)
 */
 module.exports = Client;
 
 /* ref of the client which connected to wsf Server */
 function Client(socket) {
-  this.id = null;
+  // pick up a 32 bitlens random id for every client
+  this.id = crypto.randomBytes(16).toString('hex');
   this.socket = socket;
-  this.fragmentSize = 65536;
+  // default to 2^20, max is 2^32 (4GB)
+  this.fragmentSize = Math.pow(2, 20);
   this.ip = socket.remoteAddress;
   this.port = socket.remotePort;
 }
@@ -36,12 +45,16 @@ util.inherits(Client, EventEmitter);
 *
 * <JSON>
 *
-* {
+* "
+*  {
 *   'event'<String>: custom/system event name
 *   'data'<*>: real data to be sent
-*   'type'<String>: data encoding type ('binary' | 'string')
-* }
+*  }
+* "
 *
+* <Binary>
+*
+* Buffer.concat([headerLengthInBuffer, eventJSONInBuffer, dataInBuffer]);
 */
 
 Client.prototype.setTimeout = function (timeout) {
@@ -72,6 +85,24 @@ Client.prototype.recive = function (cb) {
 // ref the origin EventEmitter#emit()
 Client.prototype.sysEmit = Client.prototype.emit;
 
+// emit control frame to current client
+Client.prototype.emitCtrl = function (Opcode, Payload_data, MASK) {
+  var FIN = 1, Masking_key = [];
+  if (MASK = +!!MASK) 
+    Masking_key = genMasking_key();
+
+  // don't fragment in control frame
+  frame = {
+    FIN: FIN,
+    Opcode: Opcode,
+    MASK: MASK,
+    Masking_key: Masking_key,
+    Payload_data: Payload_data
+  };
+  // if return false, pause the 'data' event handling progress
+  this.socket.write(encodeFrame(frame)); //|| this.socket.pause();
+};
+
 // overwrite the .emit() method
 // emit event to current client, not system level event.
 // mask = 0, server => client
@@ -85,6 +116,7 @@ Client.prototype.emit = function (e, data, mask) {
   var FIN = 1, Opcode = 0x1, MASK = 0, Masking_key = [];
   var fragment = 0;
   var frame = null;
+  var head_len;
   
   // mark the index of the payload data's last char has been sent
   var j = 0;
@@ -92,7 +124,10 @@ Client.prototype.emit = function (e, data, mask) {
   if (type == 'binary') {
     Opcode = 0x2;
     // handle the bin data
-
+    e = new Buffer(e);
+    head_len = new Buffer(1);
+    head_len.writeUInt8(e.length, 0);
+    payload_data = Buffer.concat([head_len, e, data]);
   } else {
     // text data
     payload_data = JSON.stringify({
