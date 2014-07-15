@@ -87,7 +87,6 @@ wsf.Server.prototype.sysEmit = wsf.Server.prototype.emit;
 */
 wsf.Server.prototype.emit = function (client, event, data) {
   var server = this;
-  console.log(client, 'ss');
   if (client && client instanceof Client)
     client.emit(event, data);
   else
@@ -210,13 +209,10 @@ function upgrade_handler(req, socket) {
       console.log('some problems happened during socket closing');
   });
 
-  // client ready to disconnect
-  socket.on('end', function (data) {
-    console.log('close');
-    if (data) 
-      data_handler.bind(server, client, buffer)(data);
+  // client disconnect
+  socket.on('end', function () {
     socket.end();
-    server.sysEmit('closing', data);
+    server.sysEmit('closing', client);
   });
 
   socket.on('drain', function () {
@@ -226,6 +222,8 @@ function upgrade_handler(req, socket) {
   });
 
   socket.on('timeout', function () {
+    // send close frame
+    client.emitCtrl(0x8, "connection timeout");
     socket.end('connection closed by timeout');
     server.sysEmit('timeout');
   });
@@ -233,7 +231,9 @@ function upgrade_handler(req, socket) {
   socket.on('error',function (err) {
     socket.destroy();
     server.sysEmit('exception', err);
-    console.log(err);
+    // send close frame
+    client.emitCtrl(0x8, "problems happened on connection");
+    //console.log(err);
   });
 
   // add the client to clients-stack
@@ -251,7 +251,7 @@ function upgrade_handler(req, socket) {
 function data_handler(client, buffer, data) {
   var server = this;
 
-  var readable_data, payload_data, event, rawdata, dataType;
+  var readable_data, payload_data, event, rawdata, head_len;
   var FIN, Opcode, MASK, Payload_len;
 
   // concat the buffer with last time resolved frame
@@ -284,12 +284,10 @@ function data_handler(client, buffer, data) {
           break;
         
         // non-control frame
-        // system leve text data
+        // system level text data
         case 0x1:
-        // system level binary data
-        case 0x2:
           payload_data = readable_data['frame']['Payload_data'];
-          /*try {
+          try {
             payload_data = JSON.parse(payload_data);
           } catch (e) {
             // cut this frame and skip to remain_frame
@@ -298,32 +296,44 @@ function data_handler(client, buffer, data) {
           // now payload_data is an JSON object or a string
           event = payload_data.hasOwnProperty('event') ? payload_data['event'] : new Error('Payload_data translate error');
           rawdata = payload_data.hasOwnProperty('data') ? payload_data['data'] : new Error('Payload_data translate error');
-          dataType = payload_data.hasOwnProperty('type') ? payload_data['type'] : 'string';
           
           if (event instanceof Error) {
             console.log(event);
           } else if (rawdata instanceof Error) {
             console.log(rawdata);
           } else {
-            // notice data type. 
-            // if reciving data is binary, encoding the rawdata to Buffer
-            if (dataType === 'binary')
-              rawdata = new Buffer(rawdata);
             // if nothing goes wrong, emit event to Server
             client.sysEmit(event, rawdata);
-          }*/
-          client.sysEmit('data', payload_data);
+          }
+          break;
+        // system level binary data
+        case 0x2:
+          payload_data = readable_data['frame']['Payload_data'];
+          head_len = payload_data.readUInt8(0);
+          event = payload_data.slice(1, head_len + 1).toString();
+          rawdata = payload_data.slice(head_len + 1);
+          client.sysEmit(event, rawdata);
           break;
         
         // control frame
         // Close Frame
         case 0x8:
+          payload_data = readable_data['frame']['Payload_data'].toString();
+          server.sysEmit('closing', client);
+          // CLOSE Handshake process
+          client.emitCtrl(0x8, 'u r requesting for closing the connection');
+          client.close();
           break;
         // PING
         case 0x9:
+          server.sysEmit('ping', client);
+          console.log('client:', client.id, 'is PINGING the server');
+          client.emitCtrl(0xA, null);
           break;
         // PONG
         case 0xA:
+          server.sysEmit('pong', client);
+          console.log('client:', client.id, 'send a PONG to the server');
           break;
       }
     }
