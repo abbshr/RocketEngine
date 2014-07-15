@@ -20,9 +20,9 @@ module.exports = function (frame) {
   var preBytes = [], payBytes = null;
 
   // if Payload_data is a string, encode the payload_data
-  if (typeof frame['Payload_data'] == 'string')
+  if (frame['Payload_data'] instanceof  String)
     payBytes = new Buffer(frame['Payload_data']);
-  if (typeof frame['Payload_data'] == 'buffer')
+  if (frame['Payload_data'] instanceof  Buffer)
     payBytes = frame['Payload_data'];
 
   var dataLength = payBytes.length;
