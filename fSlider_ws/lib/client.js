@@ -121,7 +121,7 @@ Client.prototype.emit = function (e, data, mask) {
   // mark the index of the payload data's last char has been sent
   var j = 0;
 
-  if (type == 'binary') {
+  if (Opcode == 0x2) {
     // handle the bin data
     e = new Buffer(e);
     head_len = new Buffer(1);
