@@ -1,4 +1,5 @@
-#### fSlider_ws
+fSlider_ws V0.1.1
+===
 a Framework of super light weight implement WebSocket Protocol, used in project fSlider
 
 ##### features
@@ -11,87 +12,85 @@ a Framework of super light weight implement WebSocket Protocol, used in project 
 
 ##### repo states
 
-now in v0.0.1, implement websocket server  
-TODO: ws client, implement the security mechanism descripted in RFC 6455
+now in v0.1.1, implement websocket server  
+TODO: ws as a client, implement the security mechanism descripted in RFC 6455
 
 ##### Usage
 
 create a websocket server:
 ```
 
-    var WServer = require('fSlider_ws').Server;
+  var fs = require('fs');
+  var http = require('http');
+  var WServer = require('fSlider_ws').Server;
 
-    var http = require('http').createServer(function(req, res) {
-      res.end('test');
+  var httpd = http.createServer(function(req, res) {
+    res.end('test');
+  });
+
+  var ws = new WServer(httpd).listen(function () {
+    console.log('wsf: server start');
+  });
+
+  ws.on('connected', function(socket) { 
+    // no timeout limit
+    socket.setTimeout(0);
+    // send binary data
+    // listen on app-level event "data" from client
+    socket.recive(function(data) {
+      // send a picture
+      data = fs.readFileSync('art.jpg');
+      // emit app-level event "data" to client
+      socket.send(data);
     });
-
-    var ws = new WServer(http).listen(function(){console.log('wserver start')});
-
-    ws.on('connected', function(socket) { 
-      socket.setTimeout(0);
-      ws.on('win', function(data) { 
-        console.log(data);
-        socket.send(data);
-      });
-      ws.on('closing', function () {
-        console.log('client close the connection');
-      });
-      ws.recive(function(data) {
-        console.log(data);
-        socket.emit('gamewin', data);
-      });
-      console.log('server online'); 
+    // listen on app-level custom event from client
+    socket.on('geek', function (data) {
+      console.log(data);
+      // emit app-level custom event to client
+      socket.emit('geekcomming', data + ' Aizen');
     });
+    console.log('client online, cid:', socket.id); 
+  });
 
-    http.listen(3000);
+  http.listen(3000);
 ```
 
 as client:
 ```
-      <body>
-      <script src="fSlider_ws/frontend/wsf.js"></script>
-      <script>
-        /* connect to a wsf */
-        wsf.connect('ws://localhost:3000', function (socket) {
-          socket.on('open', function (e) {
-            socket.emit('win', {'comment': 'hi'});
-            console.log('connection established');
-          });
-          socket.on('close', function (e) {
-            console.log('lose connection', e);
-          })          
-          // press testing
-          socket.recive(function (data) {
-            var str = [];
-            console.log(data);
-            for (var i = 0; i < 1800000; i++) {
-              
-              // send 1800000 string in one time
-              socket.send(0);
-              str[i] = 0;
-            }
-            str = str.join('');
 
-            // send a 1757 KB string
-            socket.send(str);
-          });
-          socket.on('gamewin', function (data) {
-            console.log(data);
-
-            // send a blod/ binary file
-            socket.emit('file', blob, 'binary');
-          }); 
+  <body>
+    <img id="ws"></div>
+    <script src="fSlider_ws/frontend/wsf.js"></script>
+    <script>
+      wsf.connect('ws://localhost:3000', function (socket) {
+        socket.on('open', function (e) {
+          var bin = new Blob(['hihihi']);
+          socket.send(bin);
+          console.log('connection established');
         });
-      </script>
-      </body>
+        socket.on('error', function (e) {
+          socket.close();
+        });
+        socket.recive(function (data) {
+          bloburl = URL.createObjectURL(data);
+          document.querySelector('#ws').src = bloburl;
+        });
+        socket.on('geekcomming', function (data) {
+          console.log(data);
+          socket.close();
+        });
+        socket.emit('geek', 'Ran');
+      });
+    </script>
+  </body>
 ```
 
 Server Options:
 
 ```
     var options = {
-        namespace: '/news',     // default to '/'
-        max: 100                // default to 60
+      namespace: '/news',     // default to '/'
+      max: 100                // default to 60
     };
 
     new WServer(httpServer, options);
@@ -100,32 +99,36 @@ Server Options:
 Other usages:
 
 ```
+    
+    wsf.connect();
+    
+    server.bind();
 
-    ws.bind();
+    server.unbind();
 
-    ws.unbind();
+    server.broadcast();
 
-    ws.connect();
+    server.emit();
 
+    server.on();
+
+    server.removeListener();
+    
     client.emit();
 
-    client.setTimeOut();
+    client.setTimeout();
+    
+    client.sysEmit();
+    
+    client.emitCtrl();
+    
+    client.send();
+    
+    client.recive();
 
     client.destroy();
 
     client.close();
-
-    client.send();
-
-    ws.broadcast();
-
-    ws.recive();
-
-    ws.emit();
-
-    ws.on();
-
-    ws.removeListener();
 ```
 
 ##### Server System Level Events

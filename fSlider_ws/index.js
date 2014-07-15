@@ -269,32 +269,37 @@ function data_handler(client, buffer, data) {
     
     // if recive frame is in fragment
     if (!FIN) {
+      // save the first fragment's Opcode
+      if (Opcode) buffer.Opcode = Opcode;
       payload_data = Buffer.concat([buffer.fragmentCache, payload_data]);
     } else {
+      payload_data = readable_data['frame']['Payload_data'];
       // don't fragment or the last fragment
       // translate raw Payload_data
       switch (Opcode) {
-
         // continue frame
         // the last fragment
         case 0x0:
           payload_data = Buffer.concat([buffer.fragmentCache, payload_data]);
-          Opcode = payload_data.slice(0,1) & 0x0F;
+          // when the whole fragment recived
+          // get the Opcode from cache
+          Opcode = buffer.Opcode;
           // init the fragment cache
           buffer.fragmentCache = new Buffer(0);
         // non-control frame
         // system level text data
         case 0x1:
-          payload_data = readable_data['frame']['Payload_data'];
           try {
-            payload_data = JSON.parse(payload_data);
+            payload_data = JSON.parse(payload_data.toString());
           } catch (e) {
             // cut this frame and skip to remain_frame
             console.log(e);
           }
           // now payload_data is an JSON object or a string
-          event = payload_data.hasOwnProperty('event') ? payload_data['event'] : new Error('Payload_data translate error');
-          rawdata = payload_data.hasOwnProperty('data') ? payload_data['data'] : new Error('Payload_data translate error');
+          event = payload_data.hasOwnProperty('event') ? 
+                  payload_data['event'] : new Error('Payload_data translate error');
+          rawdata = payload_data.hasOwnProperty('data') ? 
+                    payload_data['data'] : new Error('Payload_data translate error');
           
           if (event instanceof Error) {
             console.log(event);
@@ -307,7 +312,6 @@ function data_handler(client, buffer, data) {
           break;
         // system level binary data
         case 0x2:
-          payload_data = readable_data['frame']['Payload_data'];
           head_len = payload_data.readUInt8(0);
           event = payload_data.slice(1, head_len + 1).toString();
           rawdata = payload_data.slice(head_len + 1);
@@ -337,6 +341,6 @@ function data_handler(client, buffer, data) {
       }
     }
     // the rest frame data
-    buffer.frame = readable_data.remain_frame;
+    buffer.frame = readable_data['remain_frame'];
   }
 }

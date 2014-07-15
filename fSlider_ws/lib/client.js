@@ -13,7 +13,7 @@ var genMasking_key = utils.genMasking_key;
 * method:
 * .emit @e, @data, [@type]: emit an event '@e' with '@data' to the client, 
 *       data encoding default to 'utf8 string'
-* .setTimeout @tiemout
+* .setTimeout @timeout
 * .close
 * .destroy
 * .sysEmit
