@@ -1,31 +1,24 @@
 <body>
-  <div id="ws"></div>
+  <img id="ws"></div>
   <script src="../fSlider_ws/frontend/wsf.js"></script>
   <script>
     /* reference usage */
-    wsf.connect('ws://localhost:3000', function (socket) {
+    ws = wsf.connect('ws://localhost:3000', function (socket) {
       socket.on('open', function (e) {
-        socket.emit('win', {'comment': 'hi'});
+        var bin = new Blob(['125', '{event:"hi"}', 'hahaha']);
+        socket.send(bin);
         console.log('connection established');
       });
-      socket.on('close', function (e) {
-        console.log('lose connection', e);
-      })
-      socket.recive(function (data) {
-        var str = [];
-        console.log(data);
-        for (var i = 0; i < 1800000; i++) {
-          str[i] = 0;
-          socket.send(0);
-        }
-        str = str.join('');
-
-        // send a 1757 KB string
-        socket.send(str);
+      socket.recive(function (e) {
+        console.log(copy = e, e.data);
+        var fr = new FileReader();
+        fr.onload = function () {
+          console.log(this.result);
+        };
+        fr.readAsDataURL(e.data.slice(0,1));
+        urll=URL.createObjectURL(e.data.slice(1));
+        document.querySelector('#ws').src = urll;
       });
-      socket.on('gamewin', function (data) {
-        console.log(data);
-      }); 
     });
   </script>
 </body>
