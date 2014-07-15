@@ -67,13 +67,19 @@
         // async
         this.on('connect', cb);
       socket.ws = new WebSocket(ws_url);
+
+      // set binary data format
+      socket.ws.binaryType = 'blob';
       socket.ws.onmessage = function(e) {
-        var payload_data = JSON.parse(e.data);
+        // TODO: judge the recive-data type
+
+        // if type is 'text'
+        /*var payload_data = JSON.parse(e.data);
         var event = payload_data['event'];
         var data = payload_data['data'];
-        var type = payload_data['type'];
-        socket._events[event] && socket._events[event].forEach(function (cb) {
-          setTimeout(cb.bind(null, data), 0);
+        //var type = payload_data['type'];*/
+        socket._events['data'] && socket._events['data'].forEach(function (cb) {
+          setTimeout(cb.bind(null, e), 0);
         });
       };
       socket.ws.onopen = function (e) {
@@ -95,18 +101,28 @@
       socket.on = function (e, cb) {
         this._events[e] ? this._events[e].push(cb) : (this._events[e] = [cb]);
       };
-      socket.emit = function (e, data, type) {
-        var payload_data = {
-          'event': e || '',
-          'data': data || '',
-          'type': type || 'string'
-        }, 
-        payload_data_json = JSON.stringify(payload_data);
-        this.ws.send(payload_data_json);
+      socket.emit = function (e, data) {
+        var type = 'text';
+        var payload_data = data;
+        // TODO: judge the data type 
+        if (data instanceof Blob || data instanceof ArrayBuffer) {
+          type = 'binary';
+
+          // TODO: handle bin data
+
+        } else {
+          // the 'text' data
+          payload_data = {
+            'event': e || '',
+            'data': data || ''
+          }, 
+          payload_data = JSON.stringify(payload_data);
+        }
+        this.ws.send(payload_data);
       };
       // suger
-      socket.send = function (data, type) {
-        this.emit("data", data, type);
+      socket.send = function (data) {
+        this.emit("data", data);
       };
       // suger
       socket.recive = function (cb) {
