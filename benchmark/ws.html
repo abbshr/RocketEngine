@@ -5,19 +5,13 @@
     /* reference usage */
     ws = wsf.connect('ws://localhost:3000', function (socket) {
       socket.on('open', function (e) {
-        var bin = new Blob(['125', '{event:"hi"}', 'hahaha']);
+        var bin = new Blob(['hihihi']);
         socket.send(bin);
         console.log('connection established');
       });
-      socket.recive(function (e) {
-        console.log(copy = e, e.data);
-        var fr = new FileReader();
-        fr.onload = function () {
-          console.log(this.result);
-        };
-        fr.readAsDataURL(e.data.slice(0,1));
-        urll=URL.createObjectURL(e.data.slice(1));
-        document.querySelector('#ws').src = urll;
+      socket.recive(function (data) {
+        bloburl = URL.createObjectURL(data);
+        document.querySelector('#ws').src = bloburl;
       });
     });
   </script>

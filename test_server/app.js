@@ -6,16 +6,16 @@ var http = require('http').createServer(function(req, res) {
   res.end('test');
 });
 
-var ws = new WServer(http).listen(function(){console.log('wserver start')});
+var ws = new WServer(http).listen(function(){
+  console.log('wserver start');
+});
 
 ws.on('connected', function(socket) { 
   socket.setTimeout(0);
-  socket.recive(function(raw) {
-    console.log(raw, raw.toString());
+  socket.recive(function(data) {
     // send a picture
-    raw = fs.readFileSync('art.jpg');
-    raw = Buffer.concat([new Buffer('e'), raw]);
-    socket.send(raw);
+    data = fs.readFileSync('art.jpg');
+    socket.send(data);
   });
   console.log('client:', socket.id, 'online'); 
 });
