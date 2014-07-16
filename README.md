@@ -58,10 +58,10 @@ create a websocket server:
 
 as client:
 
-```js
+```html
 
   <body>
-    <div id="ws"></div>
+    <img id="ws"></img>
     <script src="../fSlider_ws/frontend/event.js/event.js"></script>
     <script src="../fSlider_ws/frontend/wsf.js"></script>
     <script>
