@@ -1,4 +1,5 @@
-#### fSlider_ws
+fSlider_ws V0.1.1
+===
 a Framework of super light weight implement WebSocket Protocol, used in project fSlider
 
 ##### features
@@ -11,42 +12,52 @@ a Framework of super light weight implement WebSocket Protocol, used in project 
 
 ##### repo states
 
-now in v0.0.1, implement websocket server  
-TODO: ws client, implement the security mechanism descripted in RFC 6455
+now in v0.1.1, implement websocket server  
+TODO: ws as a client, implement the security mechanism descripted in RFC 6455
 
 ##### Usage
 
 create a websocket server:
-```
 
-    var WServer = require('fSlider_ws').Server;
+```js
 
-    var http = require('http').createServer(function(req, res) {
-      res.end('test');
+  var fs = require('fs');
+  var http = require('http');
+  var WServer = require('fSlider_ws').Server;
+
+  var httpd = http.createServer(function(req, res) {
+    res.end('test');
+  });
+
+  var ws = new WServer(httpd).listen(function () {
+    console.log('wsf: server start');
+  });
+
+  ws.on('connected', function(socket) { 
+    // no timeout limit
+    socket.setTimeout(0);
+    // send binary data
+    // listen on app-level event "data" from client
+    socket.recive(function(data) {
+      // send a picture
+      data = fs.readFileSync('art.jpg');
+      // emit app-level event "data" to client
+      socket.send(data);
     });
-
-    var ws = new WServer(http).listen(function(){console.log('wserver start')});
-
-    ws.on('connected', function(socket) { 
-      socket.setTimeout(0);
-      ws.on('win', function(data) { 
-        console.log(data);
-        socket.send(data);
-      });
-      ws.on('closing', function () {
-        console.log('client close the connection');
-      });
-      ws.recive(function(data) {
-        console.log(data);
-        socket.emit('gamewin', data);
-      });
-      console.log('server online'); 
+    // listen on app-level custom event from client
+    socket.on('geek', function (data) {
+      console.log(data);
+      // emit app-level custom event to client
+      socket.emit('geekcomming', data + ' Aizen');
     });
+    console.log('client online, cid:', socket.id); 
+  });
 
-    http.listen(3000);
+  httpd.listen(3000);
 ```
 
 as client:
+<<<<<<< HEAD
 ```
 
   <body>
@@ -102,14 +113,45 @@ as client:
     </script>
   </body>
 
+=======
+
+```html
+
+  <body>
+    <img id="ws"></div>
+    <script src="fSlider_ws/frontend/wsf.js"></script>
+    <script>
+      wsf.connect('ws://localhost:3000', function (socket) {
+        socket.on('open', function (e) {
+          var bin = new Blob(['hihihi']);
+          socket.send(bin);
+          console.log('connection established');
+        });
+        socket.on('error', function (e) {
+          socket.close();
+        });
+        socket.recive(function (data) {
+          bloburl = URL.createObjectURL(data);
+          document.querySelector('#ws').src = bloburl;
+        });
+        socket.on('geekcomming', function (data) {
+          console.log(data);
+          socket.close();
+        });
+        socket.emit('geek', 'Ran');
+      });
+    </script>
+  </body>
+>>>>>>> dev
 ```
 
 Server Options:
 
-```
+```js
+
     var options = {
-        namespace: '/news',     // default to '/'
-        max: 100                // default to 60
+      namespace: '/news',     // default to '/'
+      max: 100                // default to 60
     };
 
     new WServer(httpServer, options);
@@ -117,38 +159,43 @@ Server Options:
 
 Other usages:
 
-```
+```js
 
-    ws.bind();
+    wsf.connect();
+    
+    server.bind();
 
-    ws.unbind();
+    server.unbind();
 
-    ws.connect();
+    server.broadcast();
 
+    server.emit();
+
+    server.on();
+
+    server.removeListener();
+    
     client.emit();
 
-    client.setTimeOut();
+    client.setTimeout();
+    
+    client.sysEmit();
+    
+    client.emitCtrl();
+    
+    client.send();
+    
+    client.recive();
 
     client.destroy();
 
     client.close();
-
-    client.send();
-
-    ws.broadcast();
-
-    ws.recive();
-
-    ws.emit();
-
-    ws.on();
-
-    ws.removeListener();
 ```
 
 ##### Server System Level Events
 these events' name are important and shouldn't be overwrited or conflict in application
-```
+
+```js
     
     'listen' 
         @httpServer: new http.Server()

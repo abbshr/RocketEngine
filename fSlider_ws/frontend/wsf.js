@@ -33,41 +33,9 @@
 
   var EventEmitter = global.EventEmitter;
 
-  /*var wsf = { 
-    _events: {
-      'connect': [],
-      'disconnect': [] 
-    } 
-  };*/
-
   var wsf = new EventEmitter({ bubbles: false, cancelable: false });
 
-  /*
-  wsf.on = function (eName, cb) {
-    //this._events[eName] ? this._events[eName].push(cb) : (this._events[eName] = [cb]);
-    
-  };
-
-  wsf.emit = function (eName, data) {
-    this._events[eName] && this._events[eName].forEach(function (cb) {
-      setTimeout(cb.bind(null, data), 0);
-    });
-  };
-
-  wsf.removeListener = function (eName, cb) {
-    var index = this._events[eName] && this._events[eName].indexOf(cb);
-    this._events[eName].splice(index, 1)
-  };
-  */
-
   wsf.connect = function (ws_url, cb) {
-    /*var socket = { 
-      _events: { 
-        'open': [],
-        'close': [],
-        'error': [] 
-      } 
-    };*/
     var socket = new EventEmitter({ bubbles: false, cancelable: false });
 
     if (!ws_url) {
@@ -82,50 +50,66 @@
         this.on('connect', cb);
       socket.originEmit = socket.emit;
       socket.ws = new WebSocket(ws_url);
+
+      // set binary data format
+      socket.ws.binaryType = 'blob';
       socket.ws.onmessage = function(e) {
-        var payload_data = JSON.parse(e.data);
-        var event = payload_data['event'];
-        var data = payload_data['data'];
-        var type = payload_data['type'];
-        /*socket._events[event] && socket._events[event].forEach(function (cb) {
-          setTimeout(cb.bind(null, data), 0);
-        });*/
-        socket.originEmit(event, data, type);
+        var data = e.data;
+        var head_len, event;
+        if (data instanceof Blob) {
+          var fr = new FileReader();
+          fr.onload = function () {
+            head_len = new DataView(this.result);
+            head_len = head_len.getUint8(0);
+            event = data.slice(1, head_len + 1);
+            data = data.slice(head_len + 1);
+            this.onload = function () {
+              event = this.result;
+              socket.originEmit(event, data);
+            };
+            this.readAsText(event);
+          };
+          head_len = data.slice(0, 1);
+          fr.readAsArrayBuffer(head_len);
+        } else if (typeof data == 'string' || data instanceof String) {
+          data = JSON.parse(data);
+          event = data['event'];
+          data = data['data'];
+          socket.originEmit(event, data);
+        }
       };
       socket.ws.onopen = function (e) {
-        /*socket._events['open'].forEach(function (cb) {
-          setTimeout(cb.bind(null, e), 0);
-        });*/
         socket.originEmit('open', e);
       };
       socket.ws.onclose = function (e) {
-        /*socket._events['close'].forEach(function (cb) {
-          setTimeout(cb.bind(null, e), 0);
-        });*/
         socket.originEmit('close', e);
         wsf.emit('disconnect', socket);
       };
       socket.ws.onerror = function (e) {
-        /*socket._events['error'].forEach(function (cb) {
-          setTimeout(cb.bind(null, e), 0);
-        });*/
         socket.originEmit('error', e);
       };
-      /*socket.on = function (e, cb) {
-        this._events[e] ? this._events[e].push(cb) : (this._events[e] = [cb]);
-      };*/
-      socket.emit = function (e, data, type) {
-        var payload_data = {
-          'event': e || '',
-          'data': data || '',
-          'type': type || 'string'
-        }, 
-        payload_data_json = JSON.stringify(payload_data);
-        this.ws.send(payload_data_json);
+      socket.emit = function (e, data) {
+        var payload_data = data;
+        var head_len;
+        if (data instanceof Blob) {
+          head_len = new DataView(new ArrayBuffer(1));
+          e = new Blob([e]);
+          // write in big endian
+          head_len.setUint8(0, e.size);
+          head_len = new Blob([head_len.buffer]);
+          payload_data = new Blob([head_len, e, data]);
+        } else if (typeof data == 'string' || data instanceof String) {
+          payload_data = {
+            'event': e || '',
+            'data': data || ''
+          }, 
+          payload_data = JSON.stringify(payload_data);
+        }
+        this.ws.send(payload_data);
       };
       // suger
-      socket.send = function (data, type) {
-        this.emit("data", data, type);
+      socket.send = function (data) {
+        this.emit("data", data);
       };
       // suger
       socket.recive = function (cb) {

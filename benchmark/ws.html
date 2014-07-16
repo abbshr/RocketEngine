@@ -1,17 +1,17 @@
 <body>
-  <div id="ws"></div>
+  <img id="ws"></img>
   <script src="../fSlider_ws/frontend/event.js/event.js"></script>
   <script src="../fSlider_ws/frontend/wsf.js"></script>
   <script>
     /* reference usage */
-    wsf.connect('ws://localhost:3000', function (e) {
+    ws=wsf.connect('ws://localhost:3000', function (e) {
       var socket = e.detail;
-      console.log(socket);
       socket.on('open', function (e) {
-        socket.emit('win', {'comment': 'hi'});
+        var bin = new Blob(['hihihi']);
+        socket.send(bin);
         console.log('connection established');
       });
-      socket.on('close', function (e) {
+      /*socket.on('close', function (e) {
         console.log('lose connection', e.detail);
       })
       socket.recive(function (e) {
@@ -46,7 +46,12 @@
       socket.on('gamewin', function (e) {
         var data = e.detail;
         console.log(data);
-      }); 
+      });*/
+      socket.recive(function (e) {
+        var data = e.detail;
+        bloburl = URL.createObjectURL(data);
+        document.querySelector('#ws').src = bloburl;
+      });
     });
   </script>
 </body>

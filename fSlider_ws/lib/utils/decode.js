@@ -17,15 +17,15 @@ module.exports = function (frame) {
   var Masking_key;
   
   var fin_offset = 7,
-    opcode_offset = parseInt(1111, 2),
-    mask_offset = 7,
-    payload_len_offset = parseInt(1111111, 2);
+      opcode_offset = 0x0F,
+      mask_offset = 7,
+      payload_len_offset = 0x7F;
 
   // bit value in frame
   var FIN = frame[counter] >> fin_offset,
-    Opcode = frame[counter++] & opcode_offset,
-    MASK = frame[counter] >> mask_offset,
-    Payload_len = frame[counter++] & payload_len_offset;
+      Opcode = frame[counter++] & opcode_offset,
+      MASK = frame[counter] >> mask_offset,
+      Payload_len = frame[counter++] & payload_len_offset;
 
   // if payload length equals to 126
   // the next 16 bit length is payload length
