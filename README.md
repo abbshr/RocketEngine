@@ -57,8 +57,8 @@ create a websocket server:
 ```
 
 as client:
-<<<<<<< HEAD
-```
+
+```js
 
   <body>
     <div id="ws"></div>
