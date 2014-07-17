@@ -6,15 +6,14 @@
     /* reference usage */
     ws=wsf.connect('ws://localhost:3000', function (e) {
       var socket = e.detail;
-      socket.on('open', function (e) {
+      socket.on('open', function () {
         var bin = new Blob(['hihihi']);
         socket.send(bin);
-        console.log('connection established');
       });
-      /*socket.on('close', function (e) {
-        console.log('lose connection', e.detail);
+      socket.on('close', function (e) {
+        console.log('bye', e.detail);
       })
-      socket.recive(function (e) {
+      /*socket.recive(function (e) {
         var data = e.detail;
         var str = [];
         console.log(data);
@@ -51,6 +50,7 @@
         var data = e.detail;
         bloburl = URL.createObjectURL(data);
         document.querySelector('#ws').src = bloburl;
+        //socket.close();
       });
     });
   </script>

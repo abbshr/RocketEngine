@@ -12,7 +12,7 @@ var ws = new WServer(http).listen(function(){
 });
 
 ws.on('connected', function(socket) { 
-  //socket.setTimeout(1000);
+  socket.setTimeout(10 * 1000);
   socket.recive(function(data) {
     // send a picture
     data = fs.readFileSync('art.jpg');
