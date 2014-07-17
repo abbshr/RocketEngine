@@ -2,11 +2,11 @@
 /*
 * wsf
 * method
-* .on @eName, @cb(@e): bind listener on system level event, invoke @e.detail to get event data
+* .on @eName, @cb(@data): bind listener on system level event
 * .emit: trigger an event on wsf
 * .removeListener: opposite to method .on
 * .connect @url, @cb(wsf.socket): return wsf.socket
-* sys_event
+* global sys_event
 * #connect: on method .connect success
 * #disconnect: on connection closed
 * object
@@ -15,7 +15,7 @@
 * .autoreconnect <Boolean>: whether reconnect after losing connection to server, default to true
 * .expire <Number>: reconnect waiting expire, default to 6s
 * method
-* .on @eName, @cb(@e): bind listener on any event, invoke @e.detail to get event data
+* .on @eName, @cb(@data): bind listener on any event
 * .originEmit: origin .emit() method of EventEmitter
 * .emit: overwrite the .emit() method of EventEmitter. emit an event to server on any level
 * .send @cb(@e): send normal data to server
@@ -63,12 +63,7 @@
     } else if (!ws_url.match(/^(ws:\/\/)|(wss:\/\/)/)) {
       throw new Error('Unknow ws URL pattern');
     } else {
-      if (cb instanceof Function) 
-        // async
-        this.on('connect', cb);
-      
       socket.originEmit = socket.emit;
-
       socket.cb = cb;
       socket.url = ws_url;
       // whether allow to auto-reconnect when there is no connection alive
@@ -81,6 +76,10 @@
 
       // set binary data format
       socket.ws.binaryType = 'blob';
+
+      if (cb instanceof Function) 
+        // async
+        socket.on('open', cb);
       socket.ws.onmessage = function(e) {
         var data = e.data;
         var head_len, event;
@@ -126,7 +125,7 @@
         // init the timer's ref
         wsf.ref[random] = 0;
         console.info('client id:', socket.id, 'connection established');
-        socket.originEmit('open');
+        socket.originEmit('open', socket);
       };
       socket.ws.onclose = function (e) {
         var close_info = {
@@ -175,7 +174,6 @@
       socket.close = function () {
         this.ws.close();
       };
-      this.emit('connect', socket);
       // sync
       return socket;
     }
@@ -183,8 +181,7 @@
 
   wsf.connect = wsf._originConnect.bind(wsf, false);
 
-  wsf.on('disconnect', function (e) {
-    var socket = e.detail;
+  wsf.on('disconnect', function (socket) {
     if (!socket.autoreconnect)
       return;
     var reconnect_info = {
@@ -193,7 +190,8 @@
       expire: socket.expire
     };
     var reconnect_cb = wsf._originConnect.bind(wsf, reconnect_info, socket.url, socket.cb);
-    // auto reconnect after 6s
+    console.log(socket.expire);
+    // auto reconnect after expire ms
     wsf.ref[socket.id] = setTimeout(reconnect_cb, socket.expire);
     console.warn('client id:', socket.id, 'reconnecting...');
   });
