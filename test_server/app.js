@@ -1,5 +1,6 @@
 
-var fs = require('fs');
+var fs = require('fs'),
+    util = require('util');
 var WServer = require('../fSlider_ws').Server;
 
 var http = require('http').createServer(function(req, res) {
@@ -11,13 +12,13 @@ var ws = new WServer(http).listen(function(){
 });
 
 ws.on('connected', function(socket) { 
-  socket.setTimeout(0);
+  //socket.setTimeout(1000);
   socket.recive(function(data) {
     // send a picture
     data = fs.readFileSync('art.jpg');
     socket.send(data);
   });
-  console.log('client:', socket.id, 'online'); 
+  util.log('client id: ' + socket.id + ' online'); 
 });
 
 http.listen(3000);
