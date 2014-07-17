@@ -89,10 +89,24 @@ Client.prototype.recive = function (cb) {
 Client.prototype.sysEmit = Client.prototype.emit;
 
 // emit control frame to current client
-Client.prototype.emitCtrl = function (Opcode, Payload_data, MASK) {
+Client.prototype.emitCtrl = function (Opcode, statusCode, Payload_data, MASK) {
   var FIN = 1, Masking_key = [];
+  var _buf;
   if (MASK = +!!MASK) 
     Masking_key = genMasking_key();
+
+  if (!(Payload_data instanceof Buffer)) 
+    Payload_data = new Buffer("" + Payload_data);
+  
+  if (utils.typeOf(+statusCode) == 'number') {
+    _buf = new Buffer(2);
+    _buf.writeUInt16BE(+statusCode, 0);
+    statusCode = _buf;
+  } else if (!(statusCode instanceof Buffer)) {
+    statusCode = new Buffer(0);
+  }
+
+  Payload_data = Buffer.concat([statusCode, Payload_data]);
 
   // don't fragment in control frame
   frame = {
@@ -175,6 +189,7 @@ Client.prototype.emit = function (e, data, mask) {
       Masking_key: Masking_key,
       Payload_data: payload_data
     };
+
     // if return false, pause the 'data' event handling progress
     this.socket.write(encodeFrame(frame)) || this.socket.pause();
   }
