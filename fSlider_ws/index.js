@@ -344,14 +344,16 @@ function data_handler(client, cache, data) {
           payload_data = payload_data.toString();
           server.sysEmit('closing', client);
           // CLOSE Handshake process
-          client.emitCtrl(0x8, 'u r requesting for closing the connection');
+          // don't forget to add a 2 byte status code
+          // normal CLOSE
+          client.emitCtrl(0x8, 1000, 'u r requesting for closing the connection');
           client.close();
           break;
         // PING
         case 0x9:
           server.sysEmit('ping', client);
           util.log('client id: ' + client.id + ' is PINGING the server');
-          client.emitCtrl(0xA, null);
+          client.emitCtrl(0xA, null, null);
           break;
         // PONG
         case 0xA:
