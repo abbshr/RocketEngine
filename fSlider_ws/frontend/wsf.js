@@ -39,7 +39,7 @@
   var typeOf = function (obj) {
     return Object.prototype.toString.call(obj).slice(8, -1).toLowerCase();
   };
-  // generate random number
+  // generate random 32bit integer
   var genRandomNumber = function () {
     var intview = new Uint32Array(1);
     return crypto.getRandomValues(intview)[0];
@@ -109,15 +109,23 @@
       socket.ws.onopen = function (e) {
         var random;
         if (reconnect_info) {
-          clearTimeout(wsf.ref[reconnect_info.id]);
           random = reconnect_info.id;
         } else {
+          // don't think about what's the id in this sisturation:
+          // the connection never establishes successfully by now,
+          // and in the feature time, the connection may establishes.
+          
+          // if the connection never establishes successfully
+          // the socket here is regarded as a 'reconnect' socket
+          // and the socket.id has been valued after the 'error' event triggered.
+          // so the statement won't be executed
           random = genRandomNumber();
-          wsf.ref[random] = true;
         }
         // identify the client
         socket.id = random;
-        console.info('connection established');
+        // init the timer's ref
+        wsf.ref[random] = 0;
+        console.info('client id:', socket.id, 'connection established');
         socket.originEmit('open');
       };
       socket.ws.onclose = function (e) {
@@ -126,12 +134,15 @@
           reason: e.reason,
           clean: e.wasClean
         };
-        console.warn('lose connection');
+        socket.id = socket.id || (reconnect_info.id || genRandomNumber());
+        console.warn('client id:', socket.id, 'lose connection');
         socket.originEmit('close', close_info);
         wsf.emit('disconnect', socket);
       };
       socket.ws.onerror = function (e) {
-        console.error('an error happened in connection');
+        // notice the id valued may be here
+        socket.id = socket.id || (reconnect_info.id || genRandomNumber());
+        console.error('client id:', socket.id, 'an error happened in connection');
         socket.originEmit('error', e);
       };
       socket.emit = function (e, data) {
@@ -184,7 +195,7 @@
     var reconnect_cb = wsf._originConnect.bind(wsf, reconnect_info, socket.url, socket.cb);
     // auto reconnect after 6s
     wsf.ref[socket.id] = setTimeout(reconnect_cb, socket.expire);
-    console.warn('reconnecting...');
+    console.warn('client id:', socket.id, 'reconnecting...');
   });
 
   global.wsf = wsf;
