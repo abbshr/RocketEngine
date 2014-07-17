@@ -35,22 +35,26 @@ create a websocket server:
 
   ws.on('connected', function(socket) { 
     // no timeout limit
-    socket.setTimeout(0);
+    //socket.setTimeout(0);
+    
+    // manual set the timeout to 10s
+    socket.setTimeout(10 * 1000);
+    
     // send binary data
     // listen on app-level event "data" from client
     socket.recive(function(data) {
-      // send a picture
-      data = fs.readFileSync('art.jpg');
-      // emit app-level event "data" to client
+      // every time when connected, send a random picture ^_^
+      data = fs.readFileSync("" + parseInt(Math.random() * 5));
       socket.send(data);
     });
+
     // listen on app-level custom event from client
     socket.on('geek', function (data) {
       console.log(data);
       // emit app-level custom event to client
       socket.emit('geekcomming', data + ' Aizen');
     });
-    console.log('client online, cid:', socket.id); 
+    util.log('client id: ' + socket.id + ' online'); 
   });
 
   httpd.listen(3000);
@@ -71,11 +75,13 @@ as client:
         socket.on('open', function (e) {
           var bin = new Blob(['hihihi']);
           socket.send(bin);
-          console.log('connection established');
         });
         socket.on('error', function (e) {
           socket.close();
         });
+        socket.on('close', function (e) {
+          console.log('bye', e.detail);
+        })
         socket.recive(function (data) {
           bloburl = URL.createObjectURL(data);
           document.querySelector('#ws').src = bloburl;
@@ -87,7 +93,6 @@ as client:
         socket.emit('geek', 'Ran');
     </script>
   </body>
-
 ```
 
 Server Options:
