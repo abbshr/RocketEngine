@@ -5,6 +5,7 @@ var util         = require('util');
 var EventEmitter = require('events').EventEmitter;
 
 var core         = require('./lib'),
+    utils        = require('./lib/utils'),
     Client       = core.Client,
     decodeFrame  = core.decodeFrame;
 
@@ -142,7 +143,10 @@ wsf.Server.prototype.unbind = function () {
 wsf.Server.prototype.listen = function (callback) {
   var httpServer = this.httpServer;
   if (callback instanceof Function)
-    this.on('listen', callback);
+    this.on('listen', function (httpServer) {
+      utils.coolLogo();
+      callback(httpServer);
+    });
   if (!httpServer || !(httpServer instanceof http.Server)) 
     return new Error('no http server init');
   // bind 'upgrade' event callback
