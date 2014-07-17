@@ -31,6 +31,7 @@ function Client(socket) {
   // pick up a 32 bitlens random id for every client
   this.id = crypto.randomBytes(16).toString('hex');
   this.socket = socket;
+  this.socket.setTimeout(60000);
   // default to 2^20, max is 2^32 (4GB)
   this.fragmentSize = 0x100000;
   this.ip = socket.remoteAddress;
@@ -57,6 +58,8 @@ util.inherits(Client, EventEmitter);
 * Buffer.concat([headerLengthInBuffer, eventJSONInBuffer, dataInBuffer]);
 */
 
+// timeout is descripted as million second
+// default to 1 min(60000 ms)
 Client.prototype.setTimeout = function (timeout) {
   this.socket.setTimeout(timeout);
 };
@@ -100,7 +103,7 @@ Client.prototype.emitCtrl = function (Opcode, Payload_data, MASK) {
     Payload_data: Payload_data
   };
   // if return false, pause the 'data' event handling progress
-  this.socket.write(encodeFrame(frame)); //|| this.socket.pause();
+  this.socket.write(encodeFrame(frame)) || this.socket.pause();
 };
 
 // overwrite the .emit() method
@@ -161,7 +164,7 @@ Client.prototype.emit = function (e, data, mask) {
         Payload_data: payload_data.slice(j, j += this.fragmentSize)
       };
       // if return false, pause the 'data' event handling progress
-      this.socket.write(encodeFrame(frame)); //|| this.socket.pause();
+      this.socket.write(encodeFrame(frame)) || this.socket.pause();
     }
   } else {
     // not fragment
@@ -173,6 +176,6 @@ Client.prototype.emit = function (e, data, mask) {
       Payload_data: payload_data
     };
     // if return false, pause the 'data' event handling progress
-    this.socket.write(encodeFrame(frame)); //|| this.socket.pause();
+    this.socket.write(encodeFrame(frame)) || this.socket.pause();
   }
 };

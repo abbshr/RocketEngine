@@ -65,7 +65,8 @@ wsf.Server = function (server, options) {
   options.max = options.max || 60;
   options.namespace = options.namespace || '/';
   this.MAX = options.max;
-  this.sockets = [];
+  //this._sockets = [];
+  this._sockets = {};
   this.namespace = options.namespace;
   this.httpServer = server;
   this._super = wsf;
@@ -73,6 +74,18 @@ wsf.Server = function (server, options) {
 
 // inherint from EventEmitter
 util.inherits(wsf.Server, EventEmitter);
+
+wsf.Server.prototype.getSocketIdCluster = function () {
+  return Object.keys(this._sockets);
+};
+
+wsf.Server.prototype.getClient = function (id) {
+  return this._sockets[id];
+};
+
+wsf.Server.prototype.getSocketsLength = function () {
+  return Object.keys(this._sockets).length;
+};
 
 // ref the origin .emit()
 wsf.Server.prototype.sysEmit = wsf.Server.prototype.emit;
@@ -90,7 +103,7 @@ wsf.Server.prototype.emit = function (client, event, data) {
   if (client && client instanceof Client)
     client.emit(event, data);
   else
-    console.log(new Error('client must be an instance of Client!'));
+    util.error(new Error('client must be an instance of Client!'));
 };
 
 /* 
@@ -143,12 +156,17 @@ wsf.Server.prototype.listen = function (callback) {
 * des: wsf server broadcast via this method.
 * @e: cumstom event name
 * @data: the msg to broadcast
-* @type: data type
 */
-wsf.Server.prototype.broadcast = function (e, data, type) {
-  this.sockets.forEach(function (client) {
-    client.emit(e, data, type);
+wsf.Server.prototype.broadcast = function (e, data) {
+  var self = this;
+  //var cluster = self._sockets;
+  self.getSocketIdCluster().forEach(function (id) {
+    self.getClient(id).emit(e, data);
   });
+  /*for (var i in cluster) {
+    if (cluster.hasOwnProperty(i))
+      cluster[i].emit(e, data);
+  }*/
 };
 
 /* 'upgrade' event callback */
@@ -163,14 +181,13 @@ function upgrade_handler(req, socket) {
   var client = new Client(socket);
   var resKey, resHeaders;
 
-  // recive-buffer, as ref 
+  // cache recive-buffer, as ref 
   var cache = {
     frame: new Buffer(0),
     fragmentCache: new Buffer(0)
   };
-
   // up to limit, throw exception
-  if (server.sockets.length + 1 > server.MAX) {
+  if (server.getSocketsLength() + 1 > server.MAX) {
     server.sysEmit('uptolimit', server.MAX);
     return new Error('can not handle this request, socket has been up to the MAX number');
   }
@@ -197,16 +214,17 @@ function upgrade_handler(req, socket) {
 
   // on disconnect
   socket.on('close', function (has_error) {
-    var stack = server.sockets;
+    /*var stack = server._sockets;
     // pop from stack
     stack.forEach(function (client, i) {
       if (client.socket === socket) 
         stack.splice(i, 1);
-    });
+    });*/
+    delete server._sockets[client.id];
     // trigger 'disconnected' event
     server.sysEmit('disconnected', client);
     if (has_error)
-      console.log('some problems happened during socket closing');
+      util.error(new Error('some problems happened during socket closing'));
   });
 
   // client disconnect
@@ -218,12 +236,13 @@ function upgrade_handler(req, socket) {
   socket.on('drain', function () {
     socket.resume();
     server.sysEmit('drained', socket.bufferSize);
-    console.log('system buffer has been drained');
+    util.log('system buffer has been drained');
   });
 
   socket.on('timeout', function () {
     // send close frame
-    client.emitCtrl(0x8, "connection timeout");
+    //client.emitCtrl(0x8, "connection timeout");
+    util.log('connection closed by timeout');
     socket.end('connection closed by timeout');
     server.sysEmit('timeout');
   });
@@ -232,12 +251,13 @@ function upgrade_handler(req, socket) {
     socket.destroy();
     server.sysEmit('exception', err);
     // send close frame
-    client.emitCtrl(0x8, "problems happened on connection");
-    //console.log(err);
+    //client.emitCtrl(0x8, "problems happened on connection");
+    util.error(err);
   });
 
   // add the client to clients-stack
-  server.sockets.push(client);
+  //server._sockets.push(client);
+  server._sockets[client.id] = client;
 
   // send handshake response
   socket.write(resHeaders) || socket.pause();
@@ -293,7 +313,7 @@ function data_handler(client, cache, data) {
             payload_data = JSON.parse(payload_data.toString());
           } catch (e) {
             // cut this frame and skip to remain_frame
-            console.log(e);
+            util.error(e);
           }
           // now payload_data is an JSON object or a string
           event = payload_data.hasOwnProperty('event') ? 
@@ -302,9 +322,9 @@ function data_handler(client, cache, data) {
                     payload_data['data'] : new Error('Payload_data translate error');
           
           if (event instanceof Error) {
-            console.log(event);
+            util.error(event);
           } else if (rawdata instanceof Error) {
-            console.log(rawdata);
+            util.error(rawdata);
           } else {
             // if nothing goes wrong, emit event to Server
             client.sysEmit(event, rawdata);
@@ -330,13 +350,13 @@ function data_handler(client, cache, data) {
         // PING
         case 0x9:
           server.sysEmit('ping', client);
-          console.log('client:', client.id, 'is PINGING the server');
+          util.log('client id: ' + client.id + ' is PINGING the server');
           client.emitCtrl(0xA, null);
           break;
         // PONG
         case 0xA:
           server.sysEmit('pong', client);
-          console.log('client:', client.id, 'send a PONG to the server');
+          util.log('client, id: ' + client.id + ' send a PONG to the server');
           break;
       }
     }
