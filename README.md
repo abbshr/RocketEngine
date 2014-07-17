@@ -1,4 +1,4 @@
-fSlider_ws V0.1.5
+fSlider_ws V0.1.6
 ===
 a Framework of super light weight implement WebSocket Protocol, used in project fSlider
 
@@ -7,6 +7,7 @@ a Framework of super light weight implement WebSocket Protocol, used in project 
 + easy to use
 + super light weight
 + high performance
++ full event driven
 + suit for newbies' learnning. such as creating a chat room...
 + no third part modules dependience
 
@@ -70,17 +71,22 @@ as client:
     <script src="../fSlider_ws/frontend/wsf.js"></script>
     <script>
       /* reference usage */
-      wsf.connect('ws://localhost:3000', function (e) {
-        var socket = e.detail;
-        socket.on('open', function (e) {
-          var bin = new Blob(['hihihi']);
-          socket.send(bin);
-        });
-        socket.on('error', function (e) {
+      wsf.connect('ws://localhost:3000', function (socket) {
+        // in default setting, 'reconnect' is enabled
+        // invoke `socket.autoreconnect = false` to disabled
+        console.log('connected');
+        // set "normal-reconnect" no-delay
+        // in "error-reconnect", once expire is set to 0, 
+        // it'll automatic revalued to 6000
+        socket.expire = 0;
+        var bin = new Blob(['hihihi']);
+        socket.send(bin);
+
+        socket.on('error', function (data) {
           socket.close();
         });
-        socket.on('close', function (e) {
-          console.log('bye', e.detail);
+        socket.on('close', function (info) {
+          console.log('bye', info);
         })
         socket.recive(function (data) {
           bloburl = URL.createObjectURL(data);
