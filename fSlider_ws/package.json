@@ -1,10 +1,10 @@
 {
-  "name": "fSlider_ws",
-  "version": "0.0.0",
+  "name": "fslider_ws",
+  "version": "0.1.7",
   "description": "light weight websocket framework for fSlider",
   "main": "index.js",
   "scripts": {
-    "test": ""
+    "test": "node test/app.js"
   },
   "repository": {
     "type": "git",
@@ -17,7 +17,7 @@
     "'fslider'",
     "'slide']"
   ],
-  "author": "ran",
+  "author": "Ran",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/abbshr/fSlider-WebSocketFramework/issues"
