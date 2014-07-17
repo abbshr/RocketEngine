@@ -1,4 +1,4 @@
-fSlider_ws V0.1.1
+fSlider_ws V0.1.5
 ===
 a Framework of super light weight implement WebSocket Protocol, used in project fSlider
 
