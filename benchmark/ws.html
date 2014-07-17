@@ -4,17 +4,19 @@
   <script src="../fSlider_ws/frontend/wsf.js"></script>
   <script>
     /* reference usage */
-    ws=wsf.connect('ws://localhost:3000', function (e) {
-      var socket = e.detail;
-      socket.on('open', function () {
-        var bin = new Blob(['hihihi']);
-        socket.send(bin);
-      });
-      socket.on('close', function (e) {
-        console.log('bye', e.detail);
+    ws=wsf.connect('ws://localhost:3000', function (socket) {
+      // in default setting, 'reconnect' is enabled
+      // invoke socket.autoreconnect = false to disabled
+      console.log('connected');
+      // set reconnect no-delay
+      socket.expire = 0;
+      var bin = new Blob(['hihihi']);
+      socket.send(bin);
+      
+      socket.on('close', function (info) {
+        console.log('bye', info);
       })
-      /*socket.recive(function (e) {
-        var data = e.detail;
+      /*socket.recive(function (data) {
         var str = [];
         console.log(data);
         // notice that complication request count may be very low in this version
@@ -42,12 +44,10 @@
         // send a 1757 KB string
         socket.send(str);
       });
-      socket.on('gamewin', function (e) {
-        var data = e.detail;
+      socket.on('gamewin', function (data) {
         console.log(data);
       });*/
-      socket.recive(function (e) {
-        var data = e.detail;
+      socket.recive(function (data) {
         bloburl = URL.createObjectURL(data);
         document.querySelector('#ws').src = bloburl;
         //socket.close();
