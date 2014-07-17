@@ -12,10 +12,11 @@ var ws = new WServer(http).listen(function(){
 });
 
 ws.on('connected', function(socket) { 
+  // manual set the timeout to 10s
   socket.setTimeout(10 * 1000);
   socket.recive(function(data) {
-    // send a picture
-    data = fs.readFileSync('art.jpg');
+    // every time when connected, send a random picture ^_^
+    data = fs.readFileSync("" + parseInt(Math.random() * 5));
     socket.send(data);
   });
   util.log('client id: ' + socket.id + ' online'); 
