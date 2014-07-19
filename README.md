@@ -16,6 +16,20 @@ a Framework of super light weight implement WebSocket Protocol, used in project 
 now in v0.1.7, implement websocket server  
 TODO: ws as a client, implement the security mechanism descripted in RFC 6455
 
+##### Install
+
+```shell
+
+npm install fslider_ws
+```
+
+if you have clone this repo, just need to install dependencies:
+
+```shell
+
+npm install
+```
+
 ##### Usage
 
 create a websocket server:
@@ -67,8 +81,8 @@ as client:
 
   <body>
     <img id="ws"></img>
-    <script src="../fSlider_ws/frontend/event.js/event.js"></script>
-    <script src="../fSlider_ws/frontend/wsf.js"></script>
+    <script src="fSlider_ws/frontend/event.js/event.js"></script>
+    <script src="fSlider_ws/frontend/wsf.js"></script>
     <script>
       /* reference usage */
       wsf.connect('ws://localhost:3000', function (socket) {
