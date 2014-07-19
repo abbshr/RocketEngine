@@ -82,6 +82,9 @@ create a websocket server:
       console.log(data);
       // emit app-level custom event to client
       socket.emit('geekcomming', data + ' Aizen');
+    });
+
+    // disconnect
     socket.on('disconnected', function (socket) {
       util.log('client id: ' + socket.id + ' offline');
     });
