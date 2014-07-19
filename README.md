@@ -36,16 +36,30 @@ create a websocket server:
 
 ```js
 
-  var fs = require('fs');
-  var http = require('http');
-  var WServer = require('fSlider_ws').Server;
+  var fs = require('fs'),
+      util = require('util'),
+      http = require('http'),
+      path = require('path');
+  var WServer = require('../index.js').Server;
 
+  // statics hash
+  var statics = {
+    '/': './ws.html',
+    '/event.js': '../node_modules/event.js/event.js',
+    '/wsf.js': '../lib/browser/wsf.js'
+  }
+
+  // http
   var httpd = http.createServer(function(req, res) {
-    res.end('test');
+    var dir = statics[req.url] || statics['/'];
+    fs.readFile(path.join(__dirname, dir), function (err, file) {
+      res.end(file);
+    });
   });
 
-  var ws = new WServer(httpd).listen(function () {
-    console.log('wsf: server start');
+  var ws = new WServer(httpd).listen(function(){
+    util.log('wsf server start');
+    console.log('open localhost:3000 to see what happened~')
   });
 
   ws.on('connected', function(socket) { 
@@ -68,8 +82,6 @@ create a websocket server:
       console.log(data);
       // emit app-level custom event to client
       socket.emit('geekcomming', data + ' Aizen');
-    });
-    util.log('client id: ' + socket.id + ' online'); 
   });
 
   httpd.listen(3000);
