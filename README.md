@@ -1,4 +1,4 @@
-fSlider_ws V0.1.8
+fSlider_ws V0.1.9
 ===
 a Framework of super light weight implement WebSocket Protocol, used in project fSlider
 
@@ -13,7 +13,7 @@ a Framework of super light weight implement WebSocket Protocol, used in project 
 
 ##### repo states
 
-now in v0.1.8, implement websocket server  
+now in v0.1.9, implement websocket server  
 TODO: ws as a client, implement the security mechanism descripted in RFC 6455
 
 ##### Install
@@ -82,6 +82,9 @@ create a websocket server:
       console.log(data);
       // emit app-level custom event to client
       socket.emit('geekcomming', data + ' Aizen');
+    socket.on('disconnected', function (socket) {
+      util.log('client id: ' + socket.id + ' offline');
+    });
   });
 
   httpd.listen(3000);

@@ -34,6 +34,9 @@ ws.on('connected', function(socket) {
     data = fs.readFileSync(path.join(__dirname, '' + parseInt(Math.random() * 5)));
     socket.send(data);
   }); 
+  socket.on('disconnected', function (socket) {
+    util.log('client id: ' + socket.id + ' offline');
+  });
   util.log('client id: ' + socket.id + ' online');
 });
 
