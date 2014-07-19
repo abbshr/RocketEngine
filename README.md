@@ -1,4 +1,4 @@
-fSlider_ws V0.1.7
+fSlider_ws V0.1.8
 ===
 a Framework of super light weight implement WebSocket Protocol, used in project fSlider
 
@@ -13,7 +13,7 @@ a Framework of super light weight implement WebSocket Protocol, used in project 
 
 ##### repo states
 
-now in v0.1.7, implement websocket server  
+now in v0.1.8, implement websocket server  
 TODO: ws as a client, implement the security mechanism descripted in RFC 6455
 
 ##### Install
