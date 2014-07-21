@@ -1,0 +1,59 @@
+<html>
+<body>
+  <img id="ws">
+  <script src="/event.js"></script>
+  <script src="/wsf.js"></script>
+  <script>
+    /* reference usage */
+    ws=wsf.connect('ws://localhost:3000', function (socket) {
+      // in default setting, 'reconnect' is enabled
+      // invoke socket.autoreconnect = false to disabled
+      console.log('connected');
+      // set reconnect no-delay
+      socket.expire = 0;
+      var bin = new Blob(['hihihi']);
+      socket.send(bin);
+      
+      socket.on('close', function (info) {
+        console.log('bye', info);
+      })
+      /*socket.recive(function (data) {
+        var str = [];
+        console.log(data);
+        // notice that complication request count may be very low in this version
+        // because of the explorer's event mechanism,
+        // in this version, you'll get a non-UI-blocked, 
+        // for exchange, you'll get a low performance
+
+        // if you insist on sending even small data, great number of times in a loop, 
+        // I promise that you can't stand to wait it finished
+
+        // in my test, send 1800000 times string '1' in a for loop will take over 9 mins
+        // if you want a high performance anyway in any conditions, 
+        // please see the 'master' branch
+
+
+        // ex:
+        // request 65536 times str in one time, this is no problems
+        for (var i = 0; i < 65536; i++) {
+          socket.send(1);
+        }
+        for (var i = 0; i < 1800000; i++) {
+          str[i] = 1;
+        }
+        str = str.join('');
+        // send a 1757 KB string
+        socket.send(str);
+      });
+      socket.on('gamewin', function (data) {
+        console.log(data);
+      });*/
+      socket.recive(function (data) {
+        bloburl = URL.createObjectURL(data);
+        document.querySelector('#ws').src = bloburl;
+        //socket.close();
+      });
+    });
+  </script>
+</body>
+</html>
