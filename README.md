@@ -1,4 +1,4 @@
-fSlider_ws V0.2.0
+fSlider_ws V0.2.1
 ===
 a Framework of super light weight implement WebSocket Protocol, used in project fSlider
 
@@ -8,12 +8,16 @@ a Framework of super light weight implement WebSocket Protocol, used in project 
 + super light weight
 + high performance
 + full event driven
++ multi websocket servers have their own split namespace
++ custom events support
++ comprehensive functions supported in client/browser
 + suit for newbies' learnning. such as creating a chat room...
++ detailed output log
 + no third part modules dependience
 
 ##### repo states
 
-now in v0.2.0, implement websocket server  
+now in v0.2.1, implement websocket server
 TODO: ws as a client, implement the security mechanism descripted in RFC 6455
 
 ##### Install
@@ -44,7 +48,8 @@ create a websocket server:
       util = require('util'),
       http = require('http'),
       path = require('path');
-  var WServer = require('../index.js').Server;
+  var wsf = require('../index.js'),
+      WServer = wsf.Server;
 
   // statics hash
   var statics = {
@@ -53,7 +58,7 @@ create a websocket server:
     '/wsf.js': '../lib/browser/wsf.js'
   }
 
-  // http
+  // http server
   var httpd = http.createServer(function(req, res) {
     var dir = statics[req.url] || statics['/'];
     fs.readFile(path.join(__dirname, dir), function (err, file) {
@@ -61,10 +66,14 @@ create a websocket server:
     });
   });
 
-  var ws = new WServer(httpd).listen(function(){
+  // listen on upgrade request
+  wsf.listen(httpd, function(){
     util.log('wsf server start');
     console.log('open localhost:3000 to see what happened~')
   });
+
+  // websocket server
+  var ws = new WServer(httpd);
 
   ws.on('connected', function(socket) { 
     // no timeout limit
@@ -94,6 +103,7 @@ create a websocket server:
     });
   });
 
+  // start the http server
   httpd.listen(3000);
 ```
 
@@ -154,6 +164,8 @@ Other usages:
 ```js
 
     wsf.connect();
+
+    wsf.listen();
     
     server.bind();
 
