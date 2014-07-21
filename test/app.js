@@ -21,7 +21,7 @@ var httpd = http.createServer(function(req, res) {
   });
 });
 
-var ws = new WServer(httpd).listen(function(){
+var ws = new WServer(httpd, { namespace: '/chat' }).listen(function(){
   util.log('wsf server start');
   console.log('open localhost:3000 to see what happened~')
 });

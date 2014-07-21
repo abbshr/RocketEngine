@@ -5,7 +5,7 @@
   <script src="/wsf.js"></script>
   <script>
     /* reference usage */
-    ws=wsf.connect('ws://localhost:3000', function (socket) {
+    ws=wsf.connect('ws://localhost:3000/chat', function (socket) {
       // in default setting, 'reconnect' is enabled
       // invoke socket.autoreconnect = false to disabled
       console.log('connected');
