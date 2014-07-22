@@ -1,4 +1,4 @@
-fSlider_ws V0.2.1
+fSlider_ws V0.2.2
 ===
 a Framework of super light weight implement WebSocket Protocol, used in project fSlider
 
@@ -17,24 +17,24 @@ a Framework of super light weight implement WebSocket Protocol, used in project 
 
 ##### repo states
 
-now in v0.2.1, implement websocket server
+now in v0.2.2, implement websocket server
 TODO: ws as a client, implement the security mechanism descripted in RFC 6455
 
 ##### Install
 
-```shell
+```sh
 npm install fslider_ws
 ```
 
 if you have clone this repo, just need to install dependencies:
 
-```shell
+```sh
 npm install
 ```
 
 ##### run test
 
-```shell
+```sh
 npm test
 ```
 
@@ -166,6 +166,8 @@ Other usages:
     wsf.connect();
 
     wsf.listen();
+
+    wsf.close();
     
     server.bind();
 
