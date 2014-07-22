@@ -4,7 +4,7 @@
   "description": "light weight websocket framework for fSlider",
   "main": "index.js",
   "scripts": {
-    "test": "travis_wait node test/app.js"
+    "test": "node test/app.js"
   },
   "repository": {
     "type": "git",
