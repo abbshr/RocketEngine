@@ -30,6 +30,12 @@ var ws = new WServer(httpd),
 var handler = function (socket) { 
   // manual set the timeout to 10s
   socket.setTimeout(10000);
+  // test non-browser client connect
+  socket.emit('hello', 'hi');
+  // test non-browser client connect
+  socket.on('terminal', function (data) {
+    console.log(data);
+  });
   socket.recive(function(data) {
     // every time when connected, send a random picture ^_^
     data = fs.readFileSync(path.join(__dirname, '' + parseInt(Math.random() * 5)));
