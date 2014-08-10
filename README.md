@@ -1,4 +1,4 @@
-[fSlider_ws V0.2.6 中文版Wiki](https://github.com/abbshr/fSlider-WebSocketFramework/wiki/fSlider_ws-V0.2.2-%E4%B8%AD%E6%96%87%E7%89%88Wiki)
+[fSlider_ws V0.2.6 中文版Wiki](https://github.com/abbshr/fSlider-WebSocketFramework/wiki/fSlider_ws-V0.2.6-%E4%B8%AD%E6%96%87%E7%89%88Wiki)
 ===
 
 [![Build Status](https://travis-ci.org/abbshr/fSlider-WebSocketFramework.svg?branch=dev-eventemitter)](https://travis-ci.org/abbshr/fSlider-WebSocketFramework)
