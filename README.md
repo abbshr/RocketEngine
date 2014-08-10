@@ -1,9 +1,9 @@
-[fSlider_ws V0.2.3 中文版Wiki](https://github.com/abbshr/fSlider-WebSocketFramework/wiki/fSlider_ws-V0.2.2-%E4%B8%AD%E6%96%87%E7%89%88Wiki)
+[fSlider_ws V0.2.6 中文版Wiki](https://github.com/abbshr/fSlider-WebSocketFramework/wiki/fSlider_ws-V0.2.2-%E4%B8%AD%E6%96%87%E7%89%88Wiki)
 ===
 
 [![Build Status](https://travis-ci.org/abbshr/fSlider-WebSocketFramework.svg?branch=dev-eventemitter)](https://travis-ci.org/abbshr/fSlider-WebSocketFramework)
 
-#### fSlider_ws V0.2.1
+#### fSlider_ws V0.2.6
 
 ![img](https://raw.githubusercontent.com/abbshr/fSlider-WebSocketFramework/dev-eventemitter/test/screen.png)
 
@@ -20,12 +20,13 @@ a Framework of super light weight implement WebSocket Protocol, used in project 
 + comprehensive functions supported in client/browser
 + suit for newbies' learnning. such as creating a chat room...
 + detailed output log
++ support a 'non-browser' websocket client
 + no third part modules dependience
 
 ##### repo states
 
-now in v0.2.1, implement websocket server
-TODO: ws as a client, implement the security mechanism descripted in RFC 6455
+now in v0.2.6, implement websocket server and websocket non-browser client
+TODO: implement the security mechanism descripted in RFC 6455
 
 ##### Install
 
@@ -154,6 +155,21 @@ as client:
   </body>
 ```
 
+use non-browser client to connect:
+
+```js
+
+var wsf = require('fslider_ws');
+
+wsf.connect('ws://localhost:3000', function (client) {
+  client.emit('event', 'datatatatata');
+  client.on('event', function (data) {
+    console.log(data);
+    client.close();
+  });
+});
+```
+
 Server Options:
 
 ```js
@@ -204,26 +220,4 @@ Other usages:
 
     client.close();
 ```
-
-##### Server System Level Events
-these events' name are important and shouldn't be overwrited or conflict in application
-
-```js
-    
-    'listen' 
-        @httpServer: new http.Server()
-    'uptolimit' 
-        @limit: new wsf.Server().MAX
-    'disconnected' 
-        @client: new Client()
-    'closing' 
-        @data: new Buffer()
-    'drained' 
-        @bufferSize: socket.bufferSize
-    'timeout'
-        (none)
-    'exception' 
-        @err: new Error()
-    'connected' 
-        @client: new Client()
-```
+#### see WIKI to lookup the whole reference
