@@ -5,7 +5,8 @@
   <script src="/wsf.js"></script>
   <script>
     /* reference usage */
-    ws=wsf.connect('ws://localhost:3000/chat', function (socket) {
+    var url = location.href.split('://')[1];
+    ws=wsf.connect('ws://' + url, function (socket) {
       // in default setting, 'reconnect' is enabled
       // invoke socket.autoreconnect = false to disabled
       console.log('connected');
