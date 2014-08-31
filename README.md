@@ -1,9 +1,7 @@
-[fSlider_ws V0.2.7 中文版Wiki](https://github.com/abbshr/fSlider-WebSocketFramework/wiki/fSlider_ws-V0.2.6-%E4%B8%AD%E6%96%87%E7%89%88Wiki)
+[fSlider_ws V0.2.8 中文版Wiki](https://github.com/abbshr/fSlider_ws/wiki/fSlider_ws-V0.2.8---%5BRainy%5D-%E4%B8%AD%E6%96%87%E7%89%88Wiki)
 ===
 
-[![Build Status](https://travis-ci.org/abbshr/fSlider-WebSocketFramework.svg?branch=dev-eventemitter)](https://travis-ci.org/abbshr/fSlider-WebSocketFramework)
-
-#### fSlider_ws V0.2.7
+#### fSlider_ws V0.2.8
 
 ![img](https://raw.githubusercontent.com/abbshr/fSlider-WebSocketFramework/dev-eventemitter/test/screen.png)
 
@@ -25,7 +23,7 @@ a Framework of super light weight implement WebSocket Protocol, used in project 
 
 ##### repo states
 
-now in v0.2.7, implement websocket server and websocket non-browser client
+now in v0.2.8, implement websocket server and websocket non-browser client
 TODO: implement the security mechanism descripted in RFC 6455
 
 ##### Install

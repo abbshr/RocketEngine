@@ -11,6 +11,7 @@ var wsf = require('../index.js'),
 var statics = {
   '/': './ws2.html',
   '/chat': './ws.html',
+  '/testclose': './ws3.html',
   '/event.js': '../node_modules/event.js/event.js',
   '/wsf.js': '../lib/browser/wsf.js'
 }
@@ -25,7 +26,8 @@ var httpd = http.createServer(function(req, res) {
 
 // websocket server of two different namespaces
 var ws = new WServer(httpd),
-    ws_1 = new WServer(httpd, { namespace: '/chat' });
+    ws_1 = new WServer(httpd, { namespace: '/chat' }),
+    ws_2 = new WServer(httpd, { namespace: '/testclose' });
 
 var handler = function (socket) { 
   // manual set the timeout to 10s
@@ -36,15 +38,16 @@ var handler = function (socket) {
   socket.on('terminal', function (data) {
     console.log(data);
   });
-  socket.on('disconnected', function (socket) {
+  socket.on('disconnected', function (info) {
     util.log('ws info: client id: ' + socket.id + ' offline');
+    console.log(info);
   });
   socket.recive(function (data) {
     console.log(data);
   });
   util.log('ws info: client id: ' + socket.id + ' online');
   // press test
-  for (var i = 0; i < 1000000; i++)
+  for (var i = 0; i < 100000; i++)
     socket.send('asd');
 };
 
@@ -62,13 +65,19 @@ var handler_1 = function (socket) {
   util.log('ws_1 info: client id: ' + socket.id + ' online');
 };
 
+var handler_2 = function (socket) {
+  socket.setTimeout(0);
+  socket.close(1000, 'yeah, closed!');
+};
+
 ws.on('connected', handler);
 ws_1.on('connected', handler_1);
+ws_2.on('connected', handler_2);
 
 // listen on websocket request
 wsf.listen(httpd, function(){
   util.log('wsf server start');
-  console.log('open localhost:3000 and localhost:3000/chat to see what happened~')
+  console.log('open localhost:3000/testclose and localhost:3000/chat to see what happened~')
 })
 
 // start the http server
