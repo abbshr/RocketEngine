@@ -1,6 +1,6 @@
 {
   "name": "fslider_ws",
-  "version": "0.2.8",
+  "version": "0.3.0",
   "description": "light weight websocket framework used in fSlider",
   "main": "index.js",
   "scripts": {
@@ -21,7 +21,8 @@
   ],
   "dependencies": {
     "colorlogger": "*",
-    "event.js": "*"
+    "event.js": "*",
+    "execq": "*"
   },
   "author": "Ran",
   "license": "MIT",

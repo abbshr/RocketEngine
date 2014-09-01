@@ -47,7 +47,7 @@ var handler = function (socket) {
   });
   util.log('ws info: client id: ' + socket.id + ' online');
   // press test
-  for (var i = 0; i < 100000; i++)
+  for (var i = 0; i < 1000000; i++)
     socket.send('asd');
 };
 
@@ -59,7 +59,7 @@ var handler_1 = function (socket) {
     data = fs.readFileSync(path.join(__dirname, '' + parseInt(Math.random() * 5)));
     socket.send(data);
   }); 
-  socket.on('disconnected', function (socket) {
+  socket.on('disconnected', function () {
     util.log('ws_1 info: client id: ' + socket.id + ' offline');
   });
   util.log('ws_1 info: client id: ' + socket.id + ' online');
