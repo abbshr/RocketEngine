@@ -1,11 +1,11 @@
-[fSlider_ws V0.3.0 中文版Wiki](https://github.com/abbshr/fSlider_ws/wiki/fSlider_ws-V0.3---%5BRainy%5D-%E4%B8%AD%E6%96%87%E7%89%88Wiki)
+[fSlider_ws V0.3.1 中文版Wiki](https://github.com/abbshr/fSlider_ws/wiki/fSlider_ws-V0.3---%5BRainy%5D-%E4%B8%AD%E6%96%87%E7%89%88Wiki)
 ===
 
-#### fSlider_ws V0.3.0
-
-![img](https://raw.githubusercontent.com/abbshr/fSlider-WebSocketFramework/dev-eventemitter/test/screen.png)
+#### fSlider_ws V0.3.1 - Rainy
 
 a Framework of super light weight implement WebSocket Protocol, used in project fSlider
+
+now it's named Rainy.
 
 ##### features
 
@@ -14,17 +14,19 @@ a Framework of super light weight implement WebSocket Protocol, used in project 
 + high performance
 + full event driven
 + multi websocket servers have their own split namespace
++ support binary data transmission and provide convenient operations for it.
 + custom events support
 + comprehensive functions supported in client/browser
 + suit for newbies' learnning. such as creating a chat room...
 + detailed output log
++ 
 + support a 'non-browser' websocket client
 + no third part modules dependience
++ support websocket connection over tls/ssl
 
 ##### repo states
 
-now in v0.3.0, implement websocket server and websocket non-browser client
-TODO: implement the security mechanism descripted in RFC 6455
+now in v0.3.1, implement websocket server, websocket non-browser client and the security mechanism descripted in RFC 6455
 
 ##### Install
 
@@ -43,6 +45,9 @@ npm install
 ```sh
 npm test
 ```
+
+####APIs:
+**see the [WIKI](https://github.com/abbshr/fSlider_ws/wiki/fSlider_ws-V0.3---%5BRainy%5D-%E4%B8%AD%E6%96%87%E7%89%88Wiki) page to lookup the whole reference**
 
 ##### Usage
 
@@ -113,7 +118,7 @@ create a websocket server:
   httpd.listen(3000);
 ```
 
-as client:
+in browser:
 
 ```html
 
@@ -167,55 +172,3 @@ wsf.connect('ws://localhost:3000', function (client) {
   });
 });
 ```
-
-Server Options:
-
-```js
-
-    var options = {
-      namespace: '/news',     // default to '/'
-      max: 100                // default to 60
-    };
-
-    new WServer(httpServer, options);
-```
-
-Other usages:
-
-```js
-
-    wsf.connect();
-
-    wsf.listen();
-
-    wsf.close();
-    
-    server.bind();
-
-    server.unbind();
-
-    server.broadcast();
-
-    server.emit();
-
-    server.on();
-
-    server.removeListener();
-    
-    client.emit();
-
-    client.setTimeout();
-    
-    client.sysEmit();
-    
-    client.emitCtrl();
-    
-    client.send();
-    
-    client.recive();
-
-    client.destroy();
-
-    client.close();
-```
-#### see WIKI to lookup the whole reference

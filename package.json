@@ -1,6 +1,6 @@
 {
   "name": "fslider_ws",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "light weight websocket framework used in fSlider",
   "main": "index.js",
   "scripts": {
