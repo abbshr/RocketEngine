@@ -1,0 +1,46 @@
+#!/usr/bin/env node
+var debug = require('debug')('watcher');
+var app = require('../app');
+
+app.set('port', process.env.PORT || 3000);
+
+/*var server = app.listen(app.get('port'), function() {
+  debug('Express server listening on port ' + server.address().port);
+});*/
+var fs = require('fs');
+var http = require('http');
+var wsf = require('fslider_ws');
+var WServer = wsf.Server;
+
+var server = http.createServer(app);
+var ws = new WServer(server);
+
+ws.on('connected', function (socket) {
+  socket.setTimeout(0);
+  var watcher = null;
+  socket.on('read', function (d) {    
+    fs.stat(d, function (err, stat) {
+      if (err)
+        return socket.emit('err', err.code);
+      watcher && fs.unwatchFile(d);
+      if (stat.isDirectory())
+        fs.readdir(d, function (err, dir) {
+          watcher = fs.watchFile(d, function (e, f) {
+            socket.send(fs.readdirSync(d));
+          });
+          socket.send(dir);
+        });
+      else if (stat.isFile())
+        fs.readFile(d, function (err, file) {
+          watcher = fs.watchFile(d, function (e, f) {
+            socket.send(fs.readFileSync(d));
+          });
+          socket.send(file);
+        });
+    });
+    
+  });
+});
+
+wsf.listen(server);
+server.listen(app.get('port'));

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+  <body>
+  <input type="text" id='path'>
+  <ul id='panel'></ul>
+    <script src='/javascripts/event.js'></script>
+    <script src='/javascripts/wsf.js'></script>
+    <script type="text/javascript">
+      var path = document.querySelector('#path');
+      var panel = document.querySelector('#panel');
+      function flush(d) {
+        panel.innerHTML = '';
+        if (Array.isArray(d)) {
+          var df = document.createDocumentFragment();
+          d.forEach(function (e, i) {
+            var li = document.createElement('li');
+            li.innerHTML = e;
+            df.appendChild(li);
+          });
+          panel.appendChild(df);
+        } else if (d instanceof Blob) {
+          var url = URL.createObjectURL(d);
+          panel.innerHTML='<li><img src="'+url+'"></li>'
+        } else {
+          panel.innerHTML = '<pre>' + d + '</pre>';
+        }
+      }
+      wsf.connect('ws://ran:3000', function (socket) {
+        socket.recive(flush);
+        socket.on('err', function (d) {
+          panel.innerHTML = d;
+        });
+        path.addEventListener('input', function (e) {
+          socket.emit('read', path.value.trim());
+        });
+      });
+    </script>
+  </body>
+</html>
