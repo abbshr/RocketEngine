@@ -17,26 +17,29 @@ var ws = new WServer(server);
 
 ws.on('connected', function (socket) {
   socket.setTimeout(0);
+  // recommend configure the fragmentSize, or it will go crazy!
+  // configuration depends on OS kernel/userspace's buffer size
+  // default to 2^10 (1KB), max is 2^32 (4GB)
+  socket.fragmentSize = 0x400; // 1KB
   var watcher = null;
   socket.on('read', function (d) {    
     fs.stat(d, function (err, stat) {
       if (err)
         return socket.emit('err', err.code);
       watcher && fs.unwatchFile(d);
-      if (stat.isDirectory())
-        fs.readdir(d, function (err, dir) {
-          watcher = fs.watchFile(d, function (e, f) {
-            socket.send(fs.readdirSync(d));
-          });
-          socket.send(dir);
+      if (stat.isDirectory()) {
+        var dir = fs.readdirSync(d);
+        watcher = fs.watchFile(d, function (e, f) {
+          socket.send(fs.readdirSync(d));
         });
-      else if (stat.isFile())
-        fs.readFile(d, function (err, file) {
-          watcher = fs.watchFile(d, function (e, f) {
-            socket.send(fs.readFileSync(d));
-          });
-          socket.send(file);
+        socket.send(dir);
+      } else if (stat.isFile()) {
+        var file = fs.readFileSync(d);
+        watcher = fs.watchFile(d, function (e, f) {
+          socket.send(fs.readFileSync(d));
         });
+        socket.send(file);
+      }
     });
     
   });
