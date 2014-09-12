@@ -1,7 +1,7 @@
-[fSlider_ws V0.3.1 中文版Wiki](https://github.com/abbshr/fSlider_ws/wiki/fSlider_ws-V0.3---%5BRainy%5D-%E4%B8%AD%E6%96%87%E7%89%88Wiki)
+[fSlider_ws V0.3.2 中文版Wiki](https://github.com/abbshr/fSlider_ws/wiki/fSlider_ws-V0.3---%5BRainy%5D-%E4%B8%AD%E6%96%87%E7%89%88Wiki)
 ===
 
-#### fSlider_ws V0.3.1 - Rainy
+#### fSlider_ws V0.3.2 - Rainy
 
 a Framework of super light weight implement WebSocket Protocol, used in project fSlider
 
@@ -26,7 +26,7 @@ now it's named Rainy.
 
 ##### repo states
 
-now in v0.3.1, implement websocket server, websocket non-browser client and the security mechanism descripted in RFC 6455
+now in v0.3.2, implement websocket server, websocket non-browser client and the security mechanism descripted in RFC 6455
 
 ##### Install
 
