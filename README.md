@@ -42,8 +42,15 @@ npm install
 
 ##### run test
 
+used in pure Node
 ```sh
 npm test
+```
+
+or use with express
+```bash
+cd test/watcher
+npm start
 ```
 
 ####APIs:
