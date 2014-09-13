@@ -18,9 +18,9 @@ var ws = new WServer(server);
 ws.on('connected', function (socket) {
   socket.setTimeout(0);
   // recommend configure the fragmentSize, or it will go crazy!
-  // configuration depends on OS kernel/userspace's buffer size
+  // configuration depends on OS userspace's buffer size
   // default to 2^10 (1KB), max is 2^32 (4GB)
-  socket.fragmentSize = 0x400; // 1KB
+  socket.fragmentSize = 0x200; // 0.5KB
   var watcher = null;
   socket.on('read', function (d) {    
     fs.stat(d, function (err, stat) {

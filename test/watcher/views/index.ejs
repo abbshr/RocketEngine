@@ -30,8 +30,12 @@
         socket.on('err', function (d) {
           panel.innerHTML = d;
         });
-        path.addEventListener('input', function (e) {
+        function pathListener(e) {
           socket.emit('read', path.value.trim());
+        }
+        path.addEventListener('input', pathListener);
+        socket.on('close', function () {
+          path.removeEventListener('input', pathListener);
         });
       });
     </script>
