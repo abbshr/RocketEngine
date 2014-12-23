@@ -1,7 +1,7 @@
 fslider_ws
 ===
 
-### fSlider_ws V0.3.4 - Rainy
+### fSlider_ws V0.3.7 - Rainy
 
 #### Wiki & APIs:
 **see the [WIKI](https://github.com/abbshr/fSlider_ws/wiki/fSlider_ws-V0.3---%5BRainy%5D-%E4%B8%AD%E6%96%87%E7%89%88Wiki) page to lookup the whole reference**
@@ -31,7 +31,7 @@ fslider_ws是一个Node.js的超轻量级的WebSocket扩展框架。
 
 ##### 项目状态
 
-now in v0.3.2, implement websocket server, websocket non-browser client and the security mechanism descripted in RFC 6455
+now in v0.3.7, implement websocket server, websocket non-browser client and the security mechanism descripted in RFC 6455
 
 ##### Install
 
