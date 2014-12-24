@@ -4,7 +4,7 @@ fslider_ws
 ### fSlider_ws V0.4 - RocketEngine
 
 #### Wiki & APIs:
-**see the [WIKI](https://github.com/abbshr/fSlider_ws/wiki/fSlider_ws-V0.3---%5BRainy%5D-%E4%B8%AD%E6%96%87%E7%89%88Wiki) page to lookup the whole reference**
+**see the [WIKI](https://github.com/abbshr/fSlider_ws/wiki/fSlider_ws-V0.4.x--%5BRocketEngine%5D-%E4%B8%AD%E6%96%87%E7%89%88Wiki) page to lookup the whole reference**
 
 fslider_ws是一个Node.js的超轻量级的WebSocket扩展框架。
 
