@@ -12,8 +12,12 @@
       console.log('connected');
       // set reconnect no-delay
       socket.expire = 0;
-      for (var i = 0; i < 10000; i++)
-        socket.send(new Blob([i]));
+      var bin = new Blob(['hihihi']);
+      socket.send(bin);
+      
+      socket.on('close', function (info) {
+        console.log('bye', info);
+      });
       
       /*socket.recive(function (data) {
         var str = [];
@@ -46,6 +50,11 @@
       socket.on('gamewin', function (data) {
         console.log(data);
       });*/
+      socket.recive(function (data) {
+        bloburl = URL.createObjectURL(data);
+        document.querySelector('#ws').src = bloburl;
+        //socket.close();
+      });
     });
   </script>
 </body>
