@@ -47,13 +47,13 @@ var handler = function (socket) {
   });
   util.log('ws info: client id: ' + socket.id + ' online');
   // press test
-  for (var i = 0; i < 1000000; i++)
-    socket.send('asd');
+  /*for (var i = 0; i < 1000000; i++)
+    socket.send('asd');*/
 };
 
 var handler_1 = function (socket) { 
   // manual set the timeout to 10s
-  socket.setTimeout(10000);
+  socket.setTimeout(0);
   socket.recive(function(data) {
     // every time when connected, send a random picture ^_^
     data = fs.readFileSync(path.join(__dirname, '' + parseInt(Math.random() * 5)));
