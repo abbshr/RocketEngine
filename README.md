@@ -4,7 +4,7 @@ RocketEngine
 ### fSlider_ws V0.4.x - RocketEngine
 
 #### Wiki & APIs:
-**see the [WIKI]() page to lookup the whole reference**
+**see the [WIKI](https://github.com/abbshr/RocketEngine/wiki/RocketEngine-V0.4.x--%E4%B8%AD%E6%96%87%E7%89%88Wiki) page to lookup the whole reference**
 
 RocketEngine (原名fslider_ws)是一个Node.js的轻量级且人性化的WebSocket库。
 
