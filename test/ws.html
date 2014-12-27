@@ -6,7 +6,7 @@
   <script>
     /* reference usage */
     var url = location.href.split('://')[1];
-    ws=wsf.connect('ws://' + url, function (socket) {
+    wsf.connect('ws://' + url, function (socket) {
       // in default setting, 'reconnect' is enabled
       // invoke socket.autoreconnect = false to disabled
       console.log('connected');
@@ -18,6 +18,7 @@
       socket.on('close', function (info) {
         console.log('bye', info);
       });
+      
       /*socket.recive(function (data) {
         var str = [];
         console.log(data);
