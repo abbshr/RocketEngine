@@ -29,7 +29,8 @@ var ws = new WServer(httpd),
     ws_1 = new WServer(httpd, { namespace: '/chat' }),
     ws_2 = new WServer(httpd, { namespace: '/testclose' });
 
-var handler = function (socket) { 
+var handler = function (socket) {
+  console.log('dd');
   // manual set the timeout to 10s
   socket.setTimeout(0);
   // test non-browser client connect
@@ -37,6 +38,9 @@ var handler = function (socket) {
   // test non-browser client connect
   socket.on('terminal', function (data) {
     console.log(data);
+  });
+  socket.on('closing', function (code) {
+    console.log(code);
   });
   socket.on('disconnected', function (info) {
     util.log('ws info: client id: ' + socket.id + ' offline');
@@ -47,8 +51,8 @@ var handler = function (socket) {
   });
   util.log('ws info: client id: ' + socket.id + ' online');
   // press test
-  for (var i = 0; i < 1000000; i++)
-    socket.send('asd');
+  /*for (var i = 0; i < 1000000; i++)
+    socket.send('asd');*/
 };
 
 var handler_1 = function (socket) { 
