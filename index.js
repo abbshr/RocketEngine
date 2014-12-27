@@ -1,2 +1,2 @@
 
-module.exports = require('./lib/fslider.js');
+module.exports = require('./lib/rocket-engine');
