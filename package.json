@@ -1,6 +1,6 @@
 {
   "name": "rocket-engine",
-  "version": "0.4.3",
+  "version": "0.4.5",
   "description": "a powerful WebSocket protocol library for Node.js",
   "main": "index.js",
   "scripts": {
@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/abbshr/fSlider_ws.git"
+    "url": "git://github.com/abbshr/RocketEngine.git"
   },
   "keywords": [
     "ws",
@@ -25,7 +25,7 @@
   "author": "Ran",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/abbshr/fSlider_ws/issues"
+    "url": "https://github.com/abbshr/RocketEngine/issues"
   },
-  "homepage": "https://github.com/abbshr/fSlider_ws"
+  "homepage": "https://github.com/abbshr/RocketEngine"
 }

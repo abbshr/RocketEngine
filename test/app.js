@@ -30,7 +30,6 @@ var ws = new WServer(httpd),
     ws_2 = new WServer(httpd, { namespace: '/testclose' });
 
 var handler = function (socket) {
-  console.log('dd');
   // manual set the timeout to 10s
   socket.setTimeout(0);
   // test non-browser client connect
