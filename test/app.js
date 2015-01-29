@@ -33,13 +33,12 @@ var handler = function (socket) {
   // manual set the timeout to 10s
   socket.setTimeout(0);
   // test non-browser client connect
-  socket.emit('hello', 'hi');
-  // test non-browser client connect
   socket.on('terminal', function (data) {
     console.log(data);
   });
   socket.on('closing', function (code) {
     console.log(code);
+    //process.exit(0);
   });
   socket.on('disconnected', function (info) {
     util.log('ws info: client id: ' + socket.id + ' offline');
@@ -48,7 +47,9 @@ var handler = function (socket) {
   socket.recive(function (data) {
     console.log(data);
   });
-  util.log('ws info: client id: ' + socket.id + ' online');
+  //util.log('ws info: client id: ' + socket.id + ' online');
+  // test non-browser client connect
+  socket.emit('hello', 'hi');
   // press test
   /*for (var i = 0; i < 1000000; i++)
     socket.send('asd');*/
@@ -84,4 +85,6 @@ wsf.listen(httpd, function(){
 })
 
 // start the http server
-httpd.listen(3000);
+httpd.listen(3000, function () {
+  process.exit(0);
+});
