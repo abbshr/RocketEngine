@@ -3,8 +3,8 @@ RocketEngine
 
 ### fSlider_ws V0.4.x - RocketEngine
 
-![badage](https://travis-ci.org/abbshr/RocketEngine.svg?branch=v0.4-rocketengine)
-[![npm version](https://badge.fury.io/js/rocket-engine@2x.png)](http://badge.fury.io/js/rocket-engine)
+[![Build Status](https://travis-ci.org/abbshr/RocketEngine.svg?branch=v0.4-rocketengine)](https://travis-ci.org/abbshr/RocketEngine)
+[![npm version](https://badge.fury.io/js/rocket-engine.svg)](http://badge.fury.io/js/rocket-engine)
 [![NPM](https://nodei.co/npm/rocket-engine.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/rocket-engine/)
 
 
