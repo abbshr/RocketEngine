@@ -1,7 +1,15 @@
 RocketEngine
 ===
 
+[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/abbshr/RocketEngine?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 ### fSlider_ws V0.4.x - RocketEngine
+
+[![Build Status](https://travis-ci.org/abbshr/RocketEngine.svg?branch=v0.4-rocketengine)](https://travis-ci.org/abbshr/RocketEngine)
+[![npm version](https://badge.fury.io/js/rocket-engine.svg)](http://badge.fury.io/js/rocket-engine)
+
+[![NPM](https://nodei.co/npm/rocket-engine.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/rocket-engine/)
+
 
 #### Wiki & APIs:
 **see the [WIKI](https://github.com/abbshr/RocketEngine/wiki/RocketEngine-V0.4.x--%E4%B8%AD%E6%96%87%E7%89%88Wiki) page to lookup the whole reference**
