@@ -55,18 +55,19 @@ var handler = function (socket) {
     socket.send('asd');*/
 };
 
-var handler_1 = function (socket) { 
+var handler_1 = function (socket) {
   // manual set the timeout to 10s
-  socket.setTimeout(10000);
-  socket.recive(function(data) {
+  socket.setTimeout(0);
+  /*socket.recive(function(data) {
     // every time when connected, send a random picture ^_^
-    data = fs.readFileSync(path.join(__dirname, '' + parseInt(Math.random() * 5)));
+    data = fs.readFileSync('Stop vs Go.gif');
     socket.send(data);
-  }); 
-  socket.on('disconnected', function () {
-    util.log('ws_1 info: client id: ' + socket.id + ' offline');
+  });*/
+  socket.on('lol', function (imgstream) {
+    imgstream.pipe(fs.createWriteStream('test/dump.gif')).on('finish', function () {
+      socket.send(fs.readFileSync('test/dump.gif'));
+    });
   });
-  util.log('ws_1 info: client id: ' + socket.id + ' online');
 };
 
 var handler_2 = function (socket) {
