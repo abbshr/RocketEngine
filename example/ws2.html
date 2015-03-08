@@ -1,0 +1,25 @@
+<html>
+<body>
+  <img id="ws">
+  <script src="/event.js"></script>
+  <script src="/wsf.js"></script>
+  <script>
+    /* reference usage */
+    var url = location.href.split('://')[1];
+    ws=wsf.connect('ws://' + url, function (socket) {
+      // in default setting, 'reconnect' is enabled
+      // invoke socket.autoreconnect = false to disabled
+      console.log('connected');
+      // set reconnect no-delay
+      socket.expire = 0;
+      socket.on('close', function (info) {
+        console.log('bye', info);
+      });
+      socket.recive(function (data) {
+        console.log(data);
+        socket.send(data);
+      });
+    });
+  </script>
+</body>
+</html>
