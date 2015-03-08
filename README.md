@@ -54,4 +54,4 @@ npm install
 
 ##### Usage:
 
-see [example](https://github.com/abbshr/RocketEngine/tree/v0.5-rocketengine/test)
+see [example](https://github.com/abbshr/RocketEngine/tree/v0.5/example)
