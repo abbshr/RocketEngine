@@ -7,7 +7,7 @@ RocketEngine
 
 ### fSlider_ws V0.5.x - RocketEngine
 
-[![Build Status](https://travis-ci.org/abbshr/RocketEngine.svg?branch=v0.5)](https://travis-ci.org/abbshr/RocketEngine)
+[![Build Status](https://travis-ci.org/abbshr/RocketEngine.svg?branch=master)](https://travis-ci.org/abbshr/RocketEngine)
 [![npm version](https://badge.fury.io/js/rocket-engine.svg)](http://badge.fury.io/js/rocket-engine)
 
 [![NPM](https://nodei.co/npm/rocket-engine.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/rocket-engine/)
