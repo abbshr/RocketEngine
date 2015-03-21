@@ -23,14 +23,16 @@ var httpd = http.createServer(function(req, res) {
 });
 
 var ws = new WServer(httpd, { namespace: '/socket' });
+var ws2 = new WServer(httpd, { namespace: '/all' });
 
 var clients = {};
 var messages = [];
 var conn_num = 0;
+
 var handler = function (socket) {
   // manual set the timeout to 10s
   socket.setTimeout(0);
-  // test non-browser client connect
+  // on receive message
   socket.on('data', function (data) {
     var d = JSON.parse(data);
     var id = d.id;
@@ -51,9 +53,16 @@ var publishMessage = function publishMessage(data) {
     socket = clients[id];
     socket.send(data);
   }
-}
+};
+
+var handler2 = function (socket) {
+  // manual set the timeout to 10s
+  socket.setTimeout(0);
+  socket.send(JSON.stringify(messages));
+};
 
 ws.on('connected', handler);
+ws2.on('connected', handler2);
 
 // listen on websocket request
 wsf.listen(httpd, function(){

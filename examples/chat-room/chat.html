@@ -15,12 +15,24 @@
   <button type="submit" class="btn btn-default">Post</button>
   </div>
 </form>
-<div id="messages">
-  
+<div>
+<ul id="messages">
+</ul>
 </div>
 <script>
+
 var url = location.href.split('://')[1];
-var soc;
+var soc; // socket for this connection
+
+wsf.connect('ws://' + url + 'all', function (socket) {
+  socket.recive(function (data) {
+    var msgs = JSON.parse(data);
+    console.log(msgs);
+    msgs.forEach(function (m) {
+      showMessage(m);
+    });
+  });
+});
 wsf.connect('ws://' + url + 'socket', function (socket) {
   console.log('Connected');
   soc = socket;
@@ -30,7 +42,7 @@ wsf.connect('ws://' + url + 'socket', function (socket) {
     console.log('Disconnected', info);
   });
   socket.recive(function (data) {
-    showMessage(data);
+    showMessage(data.body);
   });
 });
 
@@ -46,11 +58,11 @@ var onFormSubmit = function onFormSubmit(form) {
   return false;
 }
 
-var showMessage = function showMessage(data) {
-  var msg = document.getElementById('messages');
-  var html
-  msg.insertAdjacentHTML('beforeend', '<p>' + data.body + '</p>');
+var showMessage = function showMessage(msg) {
+  var div = document.getElementById('messages');
+  div.insertAdjacentHTML('beforeend', '<li>' + msg + '</li>');
 }
+
 </script>
 </body>
 </html>
