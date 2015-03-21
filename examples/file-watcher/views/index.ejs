@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+  <body>
+  <p>Input directory path or file path:</p>
+  <input type="text" id='path'>
+  <button id='btn'>raw</button>
+  <ul id='panel'></ul>
+    <script src='/javascripts/event.js'></script>
+    <script src='/javascripts/wsf.js'></script>
+    <script type="text/javascript">
+      var path = document.querySelector('#path');
+      var panel = document.querySelector('#panel');
+      var btn = document.querySelector('#btn');
+      function flush(d) {
+        btn.onclick = null;
+        panel.innerHTML = '';
+        if (Array.isArray(d)) {
+          var df = document.createDocumentFragment();
+          d.forEach(function (e, i) {
+            var li = document.createElement('li');
+            li.innerHTML = e;
+            df.appendChild(li);
+          });
+          panel.appendChild(df);
+        } else {
+          var url = URL.createObjectURL(d);
+          panel.innerHTML='<li><img src="'+url+'"></li>';
+          btn.onclick = function showRaw(e) {
+            this.onclick = null;
+            var fr = new FileReader();
+            fr.onload = function () {
+              panel.innerHTML += '<pre>' + this.result + '</pre>';
+            };
+            fr.readAsText(d);
+          }
+        }
+      }
+      wsf.connect('ws://localhost:3000', function (socket) {
+        
+        socket.recive(flush);
+        socket.on('err', function (d) {
+          panel.innerHTML = d;
+        });
+        function pathListener(e) {
+          socket.emit('read', path.value.trim());
+        }
+        path.addEventListener('input', pathListener);
+        socket.on('close', function () {
+          path.removeEventListener('input', pathListener);
+        });
+      });
+    </script>
+  </body>
+</html>

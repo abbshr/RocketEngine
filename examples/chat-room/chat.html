@@ -1,0 +1,56 @@
+<html>
+<head>
+  <title>Chat Room</title>
+  <script src="/event.js"></script>
+  <script src="/wsf.js"></script>
+</head>
+<body>
+
+
+<form onsubmit="return onFormSubmit(this);" class="form-inline" role="form" id="chat-input">
+  <div>
+    <input type="text" class="form-control" name="body"
+     id="message-input" placeholder="Chat Message">
+  </div>
+  <button type="submit" class="btn btn-default">Post</button>
+  </div>
+</form>
+<div id="messages">
+  
+</div>
+<script>
+var url = location.href.split('://')[1];
+var soc;
+wsf.connect('ws://' + url + 'socket', function (socket) {
+  console.log('Connected');
+  soc = socket;
+  // set reconnect no-delay
+  socket.expire = 0;
+  socket.on('close', function (info) {
+    console.log('Disconnected', info);
+  });
+  socket.recive(function (data) {
+    showMessage(data);
+  });
+});
+
+var postMessage = function postMessage(value) {
+  var message = {id:soc.id, body: value};
+  // Send message using websocket.
+  soc.send(JSON.stringify(message));
+}
+var onFormSubmit = function onFormSubmit(form) {
+  var form = document.getElementById('chat-input');
+  var value = form.children[0].children[0].value;
+  postMessage(value);
+  return false;
+}
+
+var showMessage = function showMessage(data) {
+  var msg = document.getElementById('messages');
+  var html
+  msg.insertAdjacentHTML('beforeend', '<p>' + data.body + '</p>');
+}
+</script>
+</body>
+</html>
