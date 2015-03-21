@@ -56,7 +56,6 @@ var publishMessage = function publishMessage(data) {
 };
 
 var handler2 = function (socket) {
-  // manual set the timeout to 10s
   socket.setTimeout(0);
   socket.send(JSON.stringify(messages));
 };
@@ -67,7 +66,7 @@ ws2.on('connected', handler2);
 // listen on websocket request
 wsf.listen(httpd, function(){
   util.log('wsf server start');
-  console.log('open localhost:3000/testclose and localhost:3000/chat to see what happened~')
+  console.log('server listen on http://localhost:3000');
 })
 
 // start the http server

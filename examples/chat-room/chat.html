@@ -5,8 +5,6 @@
   <script src="/wsf.js"></script>
 </head>
 <body>
-
-
 <form onsubmit="return onFormSubmit(this);" class="form-inline" role="form" id="chat-input">
   <div>
     <input type="text" class="form-control" name="body"
@@ -33,6 +31,7 @@ wsf.connect('ws://' + url + 'all', function (socket) {
     });
   });
 });
+
 wsf.connect('ws://' + url + 'socket', function (socket) {
   console.log('Connected');
   soc = socket;
