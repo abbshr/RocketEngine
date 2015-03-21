@@ -15,7 +15,7 @@
       socket.on('close', function (info) {
         console.log('bye', info);
       });
-      socket.recive(function (data) {
+      socket.receive(function (data) {
         console.log(data);
         socket.send(data);
       });

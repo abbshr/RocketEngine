@@ -19,7 +19,7 @@
 * .sysEmit: origin .emit() method of EventEmitter
 * .emit: overwrite the .emit() method of EventEmitter. emit an event to server on any level
 * .send @cb(@e): send normal data to server
-* .recive: recive normal data from server
+* .receive: receive normal data from server
 * .close: close the connection
 * sys_event
 * #open: on connection established
@@ -163,12 +163,12 @@
         }
         this.ws.send(payload_data);
       };
-      // suger
+      // sugar
       socket.send = function (data) {
         this.emit("data", data);
       };
-      // suger
-      socket.recive = function (cb) {
+      // sugar
+      socket.receive = function (cb) {
         this.on('data', cb);
       };
       socket.close = function (code) {

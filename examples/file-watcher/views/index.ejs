@@ -37,7 +37,7 @@
       }
       wsf.connect('ws://localhost:3000', function (socket) {
         
-        socket.recive(flush);
+        socket.receive(flush);
         socket.on('err', function (d) {
           panel.innerHTML = d;
         });

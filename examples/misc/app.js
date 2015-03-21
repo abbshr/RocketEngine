@@ -44,7 +44,7 @@ var handler = function (socket) {
     util.log('ws info: client id: ' + socket.id + ' offline');
     console.log(info);
   });
-  socket.recive(function (data) {
+  socket.receive(function (data) {
     console.log(data);
   });
   //util.log('ws info: client id: ' + socket.id + ' online');

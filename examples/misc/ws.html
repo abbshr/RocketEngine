@@ -23,7 +23,7 @@
         socket.emit('lol', file);
       });
 
-      socket.recive(function (data) {
+      socket.receive(function (data) {
         bloburl = URL.createObjectURL(data);
         document.querySelector('#ws').src = bloburl;
       });

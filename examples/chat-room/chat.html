@@ -23,7 +23,7 @@ var url = location.href.split('://')[1];
 var soc; // socket for this connection
 
 wsf.connect('ws://' + url + 'all', function (socket) {
-  socket.recive(function (data) {
+  socket.receive(function (data) {
     var msgs = JSON.parse(data);
     console.log(msgs);
     msgs.forEach(function (m) {
@@ -40,7 +40,7 @@ wsf.connect('ws://' + url + 'socket', function (socket) {
   socket.on('close', function (info) {
     console.log('Disconnected', info);
   });
-  socket.recive(function (data) {
+  socket.receive(function (data) {
     showMessage(data.body);
   });
 });
