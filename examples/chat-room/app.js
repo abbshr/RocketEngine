@@ -37,21 +37,12 @@ var handler = function (socket) {
     var id = data.id;
     var message = data.body;
     console.log('Client ' + id + ':' + message);
+    // temp workaround
+    ws._sockets[id] = socket;
     messages.push(message);
-    clients[id] = socket;
     conn_num ++;
-    publishMessage(data);
+    ws.broadcast('data', data);
   });
-  socket.on('disconnected', function(info) {
-    delete clients[socket.id];
-  });
-};
-
-var publishMessage = function publishMessage(data) {
-  for (id in clients) {
-    socket = clients[id];
-    socket.send(data);
-  }
 };
 
 var handler2 = function (socket) {
