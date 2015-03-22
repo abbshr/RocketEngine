@@ -1,0 +1,33 @@
+<html>
+<body>
+  <img id="ws">
+  <input type="file" id='upload'/>
+  <script src="/event.js"></script>
+  <script src="/wsf.js"></script>
+  <script>
+    /* reference usage */
+    var url = location.href.split('://')[1];
+    wsf.connect('ws://' + url + '/socket', function (socket) {
+      // in default setting, 'reconnect' is enabled
+      // invoke socket.autoreconnect = false to disabled
+      console.log('connected');
+      // set reconnect no-delay
+      socket.expire = 0;
+      socket.on('close', function (info) {
+        console.log('bye', info);
+      });
+      
+      var upload = document.querySelector('#upload');
+      upload.addEventListener('change', function (e) {
+        var file = e.target.files[0];
+        socket.emit('lol', file);
+      });
+
+      socket.receive(function (data) {
+        bloburl = URL.createObjectURL(data);
+        document.querySelector('#ws').src = bloburl;
+      });
+    });
+  </script>
+</body>
+</html>

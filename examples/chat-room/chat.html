@@ -1,0 +1,64 @@
+<html>
+<head>
+  <title>Chat Room</title>
+  <script src="/event.js"></script>
+  <script src="/wsf.js"></script>
+</head>
+<body>
+<form class="form-inline" role="form" id="chat-input">
+  <div>
+    <input type="text" class="form-control" name="body"
+     id="message-input" placeholder="Chat Message">
+  </div>
+  <button type="submit" class="btn btn-default">Post</button>
+  </div>
+</form>
+<div>
+<ul id="messages">
+</ul>
+</div>
+<script>
+
+var url = location.href.split('://')[1];
+var soc; // socket for this connection
+
+wsf.connect('ws://' + url + 'all', function (socket) {
+  socket.receive(function (data) {
+    var msgs = data;
+    console.log(msgs);
+    msgs.forEach(function (m) {
+      showMessage(m);
+    });
+  });
+});
+
+wsf.connect('ws://' + url + 'socket', function (socket) {
+  console.log('Connected');
+  soc = socket;
+  // set reconnect no-delay
+  socket.expire = 0;
+  socket.on('close', function (info) {
+    console.log('Disconnected', info);
+  });
+  socket.receive(function (data) {
+    showMessage(data.body);
+  });
+  
+  var form = document.getElementById('chat-input');
+  form.addEventListener("submit", function(evt) {
+    evt.preventDefault();
+    var value = form.children[0].children[0].value;
+    var message = {id:soc.id, body: value};
+    socket.send(message);
+    form.children[0].children[0].value = '';
+  });
+});
+
+var showMessage = function showMessage(msg) {
+  var div = document.getElementById('messages');
+  div.insertAdjacentHTML('beforeend', '<li>' + msg + '</li>');
+}
+
+</script>
+</body>
+</html>
