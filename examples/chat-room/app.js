@@ -30,15 +30,20 @@ var messages = [];
 var conn_num = 0;
 
 var handler = function (socket) {
-  // manual set the timeout to 10s
+  // assign an id to this client
+  socket.on('reg', function (d) {
+    socket.identify(d.id, function () {
+      console.log('client registy:', d.id);
+    });
+  });
+  // set no timeout
   socket.setTimeout(0);
   // on receive message
-  socket.on('data', function (data) {
-    var id = data.id;
+  socket.receive(function (data) {
     var message = data.body;
-    console.log('Client ' + id + ':' + message);
+    console.log('Client ' + socket.get('id') + ':' + message);
     // temp workaround
-    ws._sockets[id] = socket;
+    //ws._sockets[id] = socket;
     messages.push(message);
     conn_num ++;
     ws.broadcast('data', data);

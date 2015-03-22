@@ -34,6 +34,7 @@ wsf.connect('ws://' + url + 'all', function (socket) {
 
 wsf.connect('ws://' + url + 'socket', function (socket) {
   console.log('Connected');
+  var id = socket.id;
   soc = socket;
   // set reconnect no-delay
   socket.expire = 0;
@@ -43,12 +44,14 @@ wsf.connect('ws://' + url + 'socket', function (socket) {
   socket.receive(function (data) {
     showMessage(data.body);
   });
+  // regID
+  socket.emit('reg', { id: id });
   
   var form = document.getElementById('chat-input');
   form.addEventListener("submit", function(evt) {
     evt.preventDefault();
     var value = form.children[0].children[0].value;
-    var message = {id:soc.id, body: value};
+    var message = {body: value};
     socket.send(message);
     form.children[0].children[0].value = '';
   });
