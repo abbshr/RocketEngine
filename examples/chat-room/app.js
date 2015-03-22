@@ -34,14 +34,13 @@ var handler = function (socket) {
   socket.setTimeout(0);
   // on receive message
   socket.on('data', function (data) {
-    var d = JSON.parse(data);
-    var id = d.id;
-    var message = d.body;
+    var id = data.id;
+    var message = data.body;
     console.log('Client ' + id + ':' + message);
     messages.push(message);
     clients[id] = socket;
     conn_num ++;
-    publishMessage(d);
+    publishMessage(data);
   });
   socket.on('disconnected', function(info) {
     delete clients[socket.id];
@@ -57,7 +56,7 @@ var publishMessage = function publishMessage(data) {
 
 var handler2 = function (socket) {
   socket.setTimeout(0);
-  socket.send(JSON.stringify(messages));
+  socket.send(messages);
 };
 
 ws.on('connected', handler);
