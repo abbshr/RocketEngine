@@ -11,7 +11,7 @@ var wsf = require('../../index.js'),
 var statics = {
   '/': './chat.html',
   '/event.js': '../../node_modules/event.js/event.js',
-  '/wsf.js': '../../lib/browser/wsf.js'
+  '/rocken.js': '../../lib/browser/rocken.js'
 }
 
 // http server
