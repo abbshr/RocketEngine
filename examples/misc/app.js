@@ -4,30 +4,8 @@ var fs = require('fs'),
     util = require('util'),
     http = require('http'),
     path = require('path');
-var wsf = require('../../index.js'),
-    WServer = wsf.Server;
-
-// statics hash
-var statics = {
-  '/': './ws2.html',
-  '/chat': './ws.html',
-  '/testclose': './ws3.html',
-  '/event.js': '../../node_modules/event.js/event.js',
-  '/rocken.js': '../../lib/browser/rocken.js'
-}
-
-// http server
-var httpd = http.createServer(function(req, res) {
-  var dir = statics[req.url] || statics['/'];
-  fs.readFile(path.join(__dirname, dir), function (err, file) {
-    res.end(file);
-  });
-});
-
-// websocket server of two different namespaces
-var ws = new WServer(httpd),
-    ws_1 = new WServer(httpd, { namespace: '/chat' }),
-    ws_2 = new WServer(httpd, { namespace: '/testclose' });
+var rocket = require('../../index.js'),
+    RocketServer = rocket.Server;
 
 var handler = function (socket) {
   // manual set the timeout to 10s
@@ -47,9 +25,11 @@ var handler = function (socket) {
   socket.receive(function (data) {
     console.log(data);
   });
+  socket.on('awake', function (d) { console.log(d); });
   //util.log('ws info: client id: ' + socket.id + ' online');
   // test non-browser client connect
   socket.emit('hello', 'hi');
+  socket.emit('awake');
   // press test
   /*for (var i = 0; i < 1000000; i++)
     socket.send('asd');*/
@@ -70,15 +50,43 @@ var handler_2 = function (socket) {
   socket.close(1000, 'yeah, closed!');
 };
 
-ws.on('connected', handler);
-ws_1.on('connected', handler_1);
-ws_2.on('connected', handler_2);
+// statics list
+var statics = {
+  '/': './ws2.html',
+  '/chat': './ws.html',
+  '/testclose': './ws3.html'
+};
+statics.__proto__ = null;
+
+// http server
+var httpServer = http.createServer(function(req, res) {
+  if (req.url in statics) {
+    fs.readFile(path.join(__dirname, statics[req.url]), function (err, file) {
+      res.end(file);
+    });
+  } else {
+    res.statusCode = 404;
+    res.statusMessage = 'Not Found';
+    res.end('NOT FOUND');
+  }
+});
+
+// websocket server with three different namespaces
+// => /, /chat, /testclose
+var rock = new RocketServer(httpServer).on('connected', handler)
+
+    , rock_1 = new RocketServer(httpServer, {
+      namespace: '/chat'
+    }).on('connected', handler_1)
+
+    , rock_2 = new RocketServer(httpServer, {
+      namespace: '/testclose'
+    }).on('connected', handler_2);
 
 // listen on websocket request
-wsf.listen(httpd, function(){
+rocket.listen(httpServer, function(httpServer){
   util.log('wsf server start');
-  console.log('open localhost:3000/testclose and localhost:3000/chat to see what happened~')
-})
-
-// start the http server
-httpd.listen(3000);
+  console.log('open localhost:3000/testclose and localhost:3000/chat to see what happened~');
+  // start the http server
+  httpServer.listen(3000);
+});
