@@ -1,6 +1,6 @@
 {
   "name": "rocket-engine",
-  "version": "0.5.0",
+  "version": "0.5.3",
   "description": "a powerful WebSocket protocol library for Node.js",
   "main": "index.js",
   "engines": {
