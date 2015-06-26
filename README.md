@@ -7,6 +7,8 @@ RocketEngine
 
 ### fSlider_ws V0.5.x - RocketEngine
 
+[![Package Quality](http://npm.packagequality.com/badge/rocket-engine.png)](http://packagequality.com/#?package=rocket-engine)
+
 [![Build Status](https://travis-ci.org/abbshr/RocketEngine.svg?branch=master)](https://travis-ci.org/abbshr/RocketEngine)
 [![npm version](https://badge.fury.io/js/rocket-engine.svg)](http://badge.fury.io/js/rocket-engine)
 
